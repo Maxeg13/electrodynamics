@@ -5,8 +5,8 @@
 #-------------------------------------------------
 CONFIG   += qwt
 QT       += core gui
-INCLUDEPATH += C:/QWT/include
-LIBS += -LC:/QWT/lib -lqwt
+INCLUDEPATH += C:/Qwt-6.1.3/include
+LIBS += -LC:/Qwt-6.1.3/lib -lqwt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,7 +31,8 @@ SOURCES += \
     drawing.cpp \
     main.cpp \
     mainwindow.cpp \
-    free_space.c
+    free_space.c \
+    fdtd_1d_maxwell.c
 
 HEADERS += \
 #        mainwindow.h \
@@ -39,3 +40,8 @@ HEADERS += \
     mainwindow.h
 
 FORMS +=
+
+DISTFILES += \
+    fdtd_1d_maxwell.с \
+    fdtd_1d_maxwell.с \
+    fdtd_d_maxwell.с
