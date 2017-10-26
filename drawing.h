@@ -15,12 +15,12 @@ class myCurve:public QwtPlotCurve
 {
 public:
 
-    std::vector<float> &data;
+    std::vector<std::vector<float>> &data;
     QwtPlot* d_plot;
     QwtSymbol *symbol;
     int& ind_c;
 
-    myCurve(int bufShowSize, std::vector<float> &dataH,QwtPlot* d_plotH,const QString &title,
+    myCurve(int bufShowSize, std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
             const QColor &color, const QColor &colorSymbol,int& ind_ch );
     void signalDrawing();
     void pointDrawing(float , float);

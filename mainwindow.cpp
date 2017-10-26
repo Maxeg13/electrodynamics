@@ -6,17 +6,17 @@
 #include "constants.h"
 #include "fdtd_1d_maxwell.h"
 #include "pulse.h"
-#include "QMouseEvent"
+#include "QKeyEvent"
 
 using namespace std;
 char *tag="v1"; // used to label output files
-double tau = 1.0; // fs, width of the pulse
+double tau = 5.0; // fs, width of the pulse
 double w0=0;
 /*** Computational parameters ***/
 int Nx = 4000; // number of
 double dx = 20.0; // nm
 double xi = 0.9;
-int ix0 = 1000; //
+int ix0 = 1000;//1000;
 int No = 1000; // defines the output rate
 double dt = xi*dx/speed; // in fs
 //printf("dx=%.12e nm, dt=%.12e fs\n", dx, dt);
@@ -30,8 +30,8 @@ QTimer* timer;
 #define n_plot 2
 
 int i1=1;
-myCurve *elCurve[n_plot];
-vector<vector<float>> dataV;
+myCurve *elCurve[n_plot], *magCurve[n_plot];
+vector<vector<float>> dataE, dataH;
 
 QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
@@ -41,18 +41,38 @@ MainWindow::MainWindow(QWidget *parent) :
     fields = new double[2*Nx*sizeof(double)];
     Hz = fields+0*Nx;
     Ey = fields+1*Nx;
-    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,ix0,tau,w0);
+    for(int i=0;i<Nx;i++)
+    {
+        Ey[i]=0;
+        Hz[i]=0;
+    }
+    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,1000,tau,w0);
+    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,3000,tau,w0);
+
+    //    Hz[ix0-1]=0;
 
     timer=new QTimer(this);
     timer->start(1);
     connect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 
-    dataV.resize(2);
+    dataE.resize(2);
     for(int i=0;i<2;i++)
-        dataV[i].resize(Nx,0);
-
+        dataE[i].resize(Nx,0);
     for(int i=0;i<Nx;i++)
-        dataV[0][i]=Ey[i];
+    {
+        dataE[0][i]=dx*i;
+        dataE[1][i]=Ey[i];
+    }
+
+
+    dataH.resize(2);
+    for(int i=0;i<2;i++)
+        dataH[i].resize(Nx,0);
+    for(int i=0;i<Nx;i++)
+    {
+        dataH[0][i]=dx*(i+0.5);
+        dataH[1][i]=Hz[i];
+    }
 
     d_plot[0] = new QwtPlot(this);
     drawingInit(d_plot[0],QString("ED show"));
@@ -60,9 +80,9 @@ MainWindow::MainWindow(QWidget *parent) :
     d_plot[0]->setAxisScale(QwtPlot::xBottom,0,Nx*dx);
     d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey");
     d_plot[0]->setAxisTitle(QwtPlot::xBottom, "time, ns");
-    elCurve[0]=new myCurve(Nx, dataV[0],d_plot[0],"ED",Qt::black,Qt::black,i1);
-    //    d_plot[0]->setAxisScale(QwtPlot::xBottom ,0,Nx);
-    //    d_plot[0]->setAxisScale(QwtPlot::yLeft,-1.5,1.5);
+
+    elCurve[0]=new myCurve(Nx, dataE,d_plot[0],"ED",Qt::black,Qt::black,i1);
+    magCurve[0]=new myCurve(Nx, dataH,d_plot[0],"ED",Qt::green,Qt::green,i1);
 
     QGridLayout* MW=new QGridLayout();
     QWidget *centralWidget = new QWidget(this);
@@ -120,30 +140,41 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
 
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *e)
+void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-//    qDebug()<<"hello";
-    static int dis_i;
-    dis_i++;
-    dis_i%=2;
-    switch(dis_i)
+    if(event->text()=="s")
     {
-    case 1:
-        disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
-    case 0:
-        connect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
+        //    qDebug()<<"hello";
+        static int dis_i;
+        dis_i++;
+        dis_i%=2;
+        switch(dis_i)
+        {
+        case 1:
+            disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
+        case 0:
+            connect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
+        }
+    }
+    else if(event->text()==" ")
+    {
+        loop();
     }
 }
 
 void MainWindow::loop()
 {
-    for(int j=0;j<10;j++)
+    for(int j=0;j<5;j++)
     {
         update_Bz(Nx, Hz, Ey, xi);
         update_Dy(Nx, Ey, Hz, xi);
         for(int i=0;i<Nx;i++)
-            dataV[0][i]=Ey[i];
+        {
+            dataE[1][i]=Ey[i];
+            dataH[1][i]=Hz[i];
+        }
         elCurve[0]->signalDrawing();
+        magCurve[0]->signalDrawing();
     }
 
 }

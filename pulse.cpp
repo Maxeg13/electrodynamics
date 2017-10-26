@@ -19,8 +19,8 @@ void create_initial_dist(int Nx, double *Ey, double *Hz, double dx, double dt,
     printf("Pulse parameters: w0=%g rad/fs, tau=%g fs\n", w0, tau);
 
     for(int i=0; i<Nx; i++){
-        Ey[i] = pulse(dx*(i+0.0-ix0), 0*dt, speed, tau, w0);
-        Hz[i] = pulse(dx*(i+0.5-ix0), -0.5*dt, speed, tau, w0);
+        Ey[i] += pulse(dx*(i+0.0-ix0), 0*dt, speed, tau, w0);
+        Hz[i] += pulse(dx*(i+0.5-ix0), -0.5*dt, speed, tau, w0);
     }
     Ey[0]=0; // to satisfy b.
 

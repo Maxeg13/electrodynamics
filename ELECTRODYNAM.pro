@@ -34,7 +34,6 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     free_space.c \
-    constants.c \
     fdtd_1d_maxwell.cpp \
     pulse.cpp
 

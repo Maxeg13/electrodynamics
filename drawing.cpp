@@ -1,7 +1,7 @@
 #include "drawing.h"
 #include "mainwindow.h"
 extern double dx;
-    myCurve::myCurve(int bufShowSize, std::vector<float> &dataH,QwtPlot* d_plotH,const QString &title,
+    myCurve::myCurve(int bufShowSize, std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
             const QColor &color, const QColor &colorSymbol,int& ind_ch ):
         data(dataH),ind_c(ind_ch)
     {
@@ -11,7 +11,7 @@ extern double dx;
 
 
         dataH.resize(bufShowSize);
-        for(int i=0;i<dataH.size();i++)
+        for(int i=0;i<dataH[0].size();i++)
         {
 //            dataH[i ]=cos(i/4.);
         }
@@ -24,7 +24,7 @@ extern double dx;
 
         for (int i=0;i<data.size();i++)
         {
-            points<<QPointF(i*dx,data[i]);
+            points<<QPointF(data[0][i],data[1][i]);
         }
         setSamples( points ); // ассоциировать набор точек с кривой
         attach( d_plot); // отобразить кривую на графике
