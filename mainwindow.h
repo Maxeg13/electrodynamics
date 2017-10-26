@@ -22,6 +22,8 @@ public:
 
     void drawingInit(QwtPlot *d_plot, QString title);
 
+public slots:
+    void loop();
 };
 
 #endif // MAINWINDOW_H

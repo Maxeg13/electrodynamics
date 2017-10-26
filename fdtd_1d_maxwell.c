@@ -1,5 +1,4 @@
- void update_Bz(int Nx, double *Bz,
-const double *Ey, double xi){
+ void update_Bz(int Nx, double *Bz, const double *Ey, double xi){
 
  for(int i=0; i<Nx-1; i++){
  Bz[i] +=-xi*(Ey[i+1]-Ey[i]);
@@ -9,8 +8,7 @@ const double *Ey, double xi){
  }
 
  /******************************************************************************/
- void update_Dy(int Nx, double *Dy,
-const double *Hz, double xi){
+ void update_Dy(int Nx, double *Dy,const double *Hz, double xi){
 
  // Ey[0℄=0 always and not updated
  for(int i=1; i<Nx; i++){

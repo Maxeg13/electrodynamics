@@ -2,8 +2,28 @@
 #include "vector"
 #include "stdio.h"
 #include "QGridLayout"
+#include "QTimer"
 using namespace std;
 
+
+char *tag="v1"; // used to label output files
+double tau = 1.0; // fs, width of the pulse
+double w0=0;
+/*** Computational parameters ***/
+int Nx = 4000; // number of
+double dx = 20.0; // nm
+double xi = 0.9;
+int ix0 = 1000; //
+int No = 1000; // defines the output rate
+double dt = xi*dx/speed; // in fs
+printf("dx=%.12e nm, dt=%.12e fs\n", dx, dt);
+/*** arrays for the fields ***/
+double *fields = malloc(2*Nx*sizeof(double));
+double *Hz = fields+0*Nx;
+double *Ey = fields+1*Nx;
+int T=0; // total steps
+
+QTimer* timer;
 #define n_plot 2
 int bufShowSize=1000;
 int i1=1;
@@ -14,6 +34,10 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    timer=new QTimer(this);
+    timer->start(42);
+    connect(timer,SIGNAL(timeout()), this, SLOT(loop()));
+
     dataV.resize(2);
     for(int i=0;i<2;i++)
         dataV[i].resize(bufShowSize,0);
@@ -34,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent) :
     centralWidget->setLayout(MW);
     this->resize(QSize(600,450));
     MW->addWidget(d_plot[0]);
-//    MW->addWidget(d_plot,2,1,2,4);
+    //    MW->addWidget(d_plot,2,1,2,4);
     setCentralWidget(centralWidget);
 
     elCurve[0]->signalDrawing();
@@ -82,18 +106,12 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     d_plot->setCanvasBackground( Qt::white ); // цвет фона
 
 
-    // Включить сетку
-    // #include <qwt_plot_grid.h>
-    //    QwtPlotGrid *grid = new QwtPlotGrid(); //
-
-    //    grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
-    //    grid->attach( d_plot ); // добавить сетку к полю графика
-
-
-//    d_plot->setMinimumSize(150,140);
 
 }
-
+void MainWindow::loop()
+{
+    //    qDebug()<<"hello";
+}
 MainWindow::~MainWindow()
 {
 
