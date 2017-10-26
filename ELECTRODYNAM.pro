@@ -34,18 +34,21 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     free_space.c \
-    fdtd_1d_maxwell.c \
-    pulse.c \
-    constants.c
+    constants.c \
+    fdtd_1d_maxwell.cpp \
+    pulse.cpp
 
 HEADERS += \
 #        mainwindow.h \
     drawing.h \
-    mainwindow.h
+    mainwindow.h \
+    constants.h \
+    fdtd_1d_maxwell.h \
+    pulse.h
 
 FORMS +=
 
 DISTFILES += \
     fdtd_1d_maxwell.с \
-    fdtd_1d_maxwell.с \
-    fdtd_d_maxwell.с
+#    fdtd_1d_maxwell.с \
+#    fdtd_d_maxwell.с

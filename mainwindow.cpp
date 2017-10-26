@@ -3,9 +3,11 @@
 #include "stdio.h"
 #include "QGridLayout"
 #include "QTimer"
+#include "constants.h"
+#include "fdtd_1d_maxwell.h"
+#include "pulse.h"
+
 using namespace std;
-
-
 char *tag="v1"; // used to label output files
 double tau = 1.0; // fs, width of the pulse
 double w0=0;
@@ -16,16 +18,16 @@ double xi = 0.9;
 int ix0 = 1000; //
 int No = 1000; // defines the output rate
 double dt = xi*dx/speed; // in fs
-printf("dx=%.12e nm, dt=%.12e fs\n", dx, dt);
+//printf("dx=%.12e nm, dt=%.12e fs\n", dx, dt);
 /*** arrays for the fields ***/
-double *fields = malloc(2*Nx*sizeof(double));
-double *Hz = fields+0*Nx;
-double *Ey = fields+1*Nx;
+double *fields;
+double *Hz;
+double *Ey;
 int T=0; // total steps
 
 QTimer* timer;
 #define n_plot 2
-int bufShowSize=1000;
+
 int i1=1;
 myCurve *elCurve[n_plot];
 vector<vector<float>> dataV;
@@ -34,24 +36,32 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+//    qDebug()<<speed;
+    fields = new double[2*Nx*sizeof(double)];
+    Hz = fields+0*Nx;
+    Ey = fields+1*Nx;
+    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,ix0,tau,w0);
+
     timer=new QTimer(this);
-    timer->start(42);
+    timer->start(1);
     connect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 
     dataV.resize(2);
     for(int i=0;i<2;i++)
-        dataV[i].resize(bufShowSize,0);
+        dataV[i].resize(Nx,0);
 
-    for(int i=0;i<bufShowSize;i++)
-        dataV[0][i]=sin(i*0.1);
+    for(int i=0;i<Nx;i++)
+        dataV[0][i]=Ey[i];
 
     d_plot[0] = new QwtPlot(this);
     drawingInit(d_plot[0],QString("ED show"));
-    d_plot[0]->setAxisScale(QwtPlot::yLeft,-400,400);
-    d_plot[0]->setAxisScale(QwtPlot::xBottom,0,bufShowSize);
-    elCurve[0]=new myCurve(bufShowSize, dataV[0],d_plot[0],"ED",Qt::black,Qt::black,i1);
-    d_plot[0]->setAxisScale(QwtPlot::xBottom ,0,bufShowSize);
     d_plot[0]->setAxisScale(QwtPlot::yLeft,-1.5,1.5);
+    d_plot[0]->setAxisScale(QwtPlot::xBottom,0,Nx*dx);
+    d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey");
+    d_plot[0]->setAxisTitle(QwtPlot::xBottom, "time, ns");
+    elCurve[0]=new myCurve(Nx, dataV[0],d_plot[0],"ED",Qt::black,Qt::black,i1);
+//    d_plot[0]->setAxisScale(QwtPlot::xBottom ,0,Nx);
+//    d_plot[0]->setAxisScale(QwtPlot::yLeft,-1.5,1.5);
 
     QGridLayout* MW=new QGridLayout();
     QWidget *centralWidget = new QWidget(this);
@@ -101,7 +111,7 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     QwtText* qwtt=new QwtText(title);
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
 
-    d_plot->setAxisScale(1,-500,500,200);
+//    d_plot->setAxisScale(1,-500,500,200);
     d_plot->setTitle( *qwtt ); // заголовок
     d_plot->setCanvasBackground( Qt::white ); // цвет фона
 
@@ -110,7 +120,13 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
 }
 void MainWindow::loop()
 {
-    //    qDebug()<<"hello";
+    update_Bz(Nx, Hz, Ey, xi);
+    update_Dy(Nx, Ey, Hz, xi);
+    for(int i=0;i<Nx;i++)
+        dataV[0][i]=Ey[i];
+    elCurve[0]->signalDrawing();
+
+
 }
 MainWindow::~MainWindow()
 {

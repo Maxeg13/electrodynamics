@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<math.h>
+#include "pulse.h"
 
 /******************************************************************************/
 double pulse(double x, double t, double speed, double tau, double w0){
