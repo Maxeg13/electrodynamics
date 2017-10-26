@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "fdtd_1d_maxwell.h"
 #include "pulse.h"
+#include "QMouseEvent"
 
 using namespace std;
 char *tag="v1"; // used to label output files
@@ -36,7 +37,7 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-//    qDebug()<<speed;
+    //    qDebug()<<speed;
     fields = new double[2*Nx*sizeof(double)];
     Hz = fields+0*Nx;
     Ey = fields+1*Nx;
@@ -60,8 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
     d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey");
     d_plot[0]->setAxisTitle(QwtPlot::xBottom, "time, ns");
     elCurve[0]=new myCurve(Nx, dataV[0],d_plot[0],"ED",Qt::black,Qt::black,i1);
-//    d_plot[0]->setAxisScale(QwtPlot::xBottom ,0,Nx);
-//    d_plot[0]->setAxisScale(QwtPlot::yLeft,-1.5,1.5);
+    //    d_plot[0]->setAxisScale(QwtPlot::xBottom ,0,Nx);
+    //    d_plot[0]->setAxisScale(QwtPlot::yLeft,-1.5,1.5);
 
     QGridLayout* MW=new QGridLayout();
     QWidget *centralWidget = new QWidget(this);
@@ -111,21 +112,39 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     QwtText* qwtt=new QwtText(title);
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
 
-//    d_plot->setAxisScale(1,-500,500,200);
+    //    d_plot->setAxisScale(1,-500,500,200);
     d_plot->setTitle( *qwtt ); // заголовок
     d_plot->setCanvasBackground( Qt::white ); // цвет фона
 
 
 
 }
+
+void MainWindow::mousePressEvent(QMouseEvent *e)
+{
+//    qDebug()<<"hello";
+    static int dis_i;
+    dis_i++;
+    dis_i%=2;
+    switch(dis_i)
+    {
+    case 1:
+        disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
+    case 0:
+        connect(timer,SIGNAL(timeout()), this, SLOT(loop()));break;
+    }
+}
+
 void MainWindow::loop()
 {
-    update_Bz(Nx, Hz, Ey, xi);
-    update_Dy(Nx, Ey, Hz, xi);
-    for(int i=0;i<Nx;i++)
-        dataV[0][i]=Ey[i];
-    elCurve[0]->signalDrawing();
-
+    for(int j=0;j<10;j++)
+    {
+        update_Bz(Nx, Hz, Ey, xi);
+        update_Dy(Nx, Ey, Hz, xi);
+        for(int i=0;i<Nx;i++)
+            dataV[0][i]=Ey[i];
+        elCurve[0]->signalDrawing();
+    }
 
 }
 MainWindow::~MainWindow()

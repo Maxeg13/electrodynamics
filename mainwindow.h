@@ -24,6 +24,7 @@ public:
 
 public slots:
     void loop();
+    void mousePressEvent(QMouseEvent *e);
 };
 
 #endif // MAINWINDOW_H
