@@ -64,11 +64,7 @@ dcomplex *ft1 = ftall + 0*Nw;
 dcomplex *ft2 = ftall + 1*Nw;
  zset_mem(2*Nw, ftall, 0.0+I*0.0);
  int T=0; // total steps
-double *Hz;
-double *Ey;
-double HZM[Nx];
-double EYM[Nx];
-int T=0; // total steps
+
 
 QTimer* timer;
 #define n_plot 2
@@ -81,8 +77,7 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    Ey=EYM;
-    Hz=HZM;
+
     //    qDebug()<<speed;
     //    fields = new double[2*Nx*sizeof(double)];
     //    Hz = fields+0*Nx;
@@ -90,7 +85,9 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         Ey[i]=0;
+        Dy[i]=0;
         Hz[i]=0;
+        eps[i]=0;
     }
     //    create_initial_monochrom(Ey,Hz,dx,2*pi/5000.,dx*Nx/4,1);
     //    create_initial_monochrom(Ey,Hz,dx,2*pi/5000.,dx*Nx/4,-1);
@@ -246,8 +243,9 @@ void MainWindow::loop()
     {
         time_i+=1;
 
-        update_Bz(Nx, Hz, Ey, xi);
-        update_Dy(Nx, Ey, Hz, xi);
+        update_Bz(Nx, Hz, Ey, xi); 
+         update_Dy(Nx, Dy, Hz, xi); 
+         update_Ey(Nx, Ey, Dy, eps); 
         for(int i=0;i<Nx;i++)
         {
             dataE[1][i]=Ey[i];

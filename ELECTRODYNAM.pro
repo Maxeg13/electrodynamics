@@ -35,7 +35,9 @@ SOURCES += \
     mainwindow.cpp \
     free_space.c \
     fdtd_1d_maxwell.cpp \
-    pulse.cpp
+    pulse.cpp \
+    mater.c \
+    rfourier.c
 
 HEADERS += \
 #        mainwindow.h \
@@ -43,7 +45,9 @@ HEADERS += \
     mainwindow.h \
     constants.h \
     fdtd_1d_maxwell.h \
-    pulse.h
+    pulse.h \
+    mater.h \
+    rfourier.h
 
 FORMS +=
 
