@@ -1,11 +1,10 @@
 #ifndef RFOURIER_C
 #define RFOURIER_C
 #include "rfourier.h"
-#include<stdio.h>
+//#include<stdio.h>
 #include<math.h>
-#include<complex.h>
 
- typedef  complex<double> dcomplex;
+
 extern const double speed, pi;
 
 /******************************************************************************/

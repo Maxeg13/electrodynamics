@@ -12,11 +12,7 @@ double pulse(double x, double t, double speed, double tau, double w0){
 /******************************************************************************/
 void create_initial_dist(int Nx, double *Ey, double *Hz, double dx, double dt,
                          double speed, int ix0, double tau, double w0,int dir){
-    /*
- * Creates Ey[T=0℄ and Hz[T=-0.5℄
- */
 
-    printf("Pulse parameters: w0=%g rad/fs, tau=%g fs\n", w0, tau);
 
     for(int i=0; i<Nx; i++){
         Ey[i] += pulse(dx*(i+0.0-ix0), 0*dt, speed, tau, w0);
@@ -25,6 +21,8 @@ void create_initial_dist(int Nx, double *Ey, double *Hz, double dx, double dt,
     Ey[0]=0; // to satisfy b.
 
 }
+
+
 
 void create_initial_monochrom(double *Ey, double *Hz, double dx,float k,float l,int dir)
 {

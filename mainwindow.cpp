@@ -13,12 +13,12 @@
  #include<stdlib.h>
 //#include<string.h>
  #include<math.h>
- #include<complex.h>
+ #include<complex>
 
 #include"mater.h"
 #include"set_mem.h"
 #include"rfourier.h"
-typedef double complex dcomplex;
+typedef  complex<double> dcomplex;
 
 
 QLineEdit* LE;
@@ -32,6 +32,7 @@ double tau = 8; // fs, width of the pulse
 /*** Computational parameters ***/
 double dx = 20.0; // nm
 int Nx = 20000; // number of
+int Nx_part=Nx/4;
 
 int ix0 = 9000;
 
@@ -67,7 +68,7 @@ int Nw=200;
 dcomplex *ftall=new dcomplex[2*Nw];
 dcomplex *ft1 = ftall + 0*Nw;
 dcomplex *ft2 = ftall + 1*Nw;
-zset_mem(2*Nw, ftall, 0.0+I*0.0);
+
 int T=0; // total steps
 
 
@@ -82,11 +83,12 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    zset_mem(2*Nw, ftall, 0.0+dcomplex(0,1)*0.0);
     create_slab(Nx, eps, si1, si2, eslab);
-    output_eps_x(Nx, eps, dx, tag);
-    create_initial_dist(Nx, Dy, Hz, dx, dt,speed, ix0, tau, w0);
+//    output_eps_x(Nx, eps, dx, tag);
+    create_initial_dist(Nx, Dy, Hz, dx, dt,speed, ix0, tau, w0,1);
     update_Ey(Nx, Ey, Dy, eps);
-    output_Ey_vs_x(Nx, Ey, 0, dx, tag);
+//    output_Ey_vs_x(Nx, Ey, 0, dx, tag);
     //    qDebug()<<speed;
     //    fields = new double[2*Nx*sizeof(double)];
     //    Hz = fields+0*Nx;

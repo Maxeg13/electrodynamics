@@ -36,9 +36,9 @@ SOURCES += \
     free_space.c \
     fdtd_1d_maxwell.cpp \
     pulse.cpp \
-    mater.c \
-    rfourier.c \
-    set_mem.c
+    mater.cpp \
+    rfourier.cpp \
+    set_mem.cpp
 
 HEADERS += \
 #        mainwindow.h \
