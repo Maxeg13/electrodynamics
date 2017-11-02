@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "vector"
-#include "stdio.h"
 #include "QGridLayout"
 #include "QTimer"
 #include "constants.h"
@@ -8,6 +7,19 @@
 #include "pulse.h"
 #include "QKeyEvent"
 #include "QLineEdit"
+
+
+ #include<stdio.h>
+ #include<stdlib.h>
+//#include<string.h>
+ #include<math.h>
+ #include<complex.h>
+
+#include"mater.h"
+#include"set_mem.h"
+#include"rfourier.h"
+typedef double complex dcomplex;
+
 
 QLineEdit* LE;
 using namespace std;
@@ -38,22 +50,15 @@ int No = 200; // defines the output rate
 ution ***/
 double w0 = 2*pi*speed/lambda0; // rad/fs
 double dt = xi*dx/speed; // in fs
-printf("dx=%.12e nm, dt=%.12e fs\n", dx, dt);
+
 
 /*** arrays for the fields ***/
-double *fields = new double [3*Nx];
+double *fields = new double[3*Nx];
 double *Hz = fields+0*Nx;
 double *Ey = fields+1*Nx;
 double *Dy = fields+2*Nx;
-double *eps = new double[(Nx)];
-create_slab(Nx, eps, si1, si2, eslab);
-output_eps_x(Nx, eps, dx, tag);
+double *eps = new double[Nx];
 
-
-create_initial_dist(Nx, Dy, Hz, dx, dt,speed, ix0, tau, w0);
-
-update_Ey(Nx, Ey, Dy, eps);
-output_Ey_vs_x(Nx, Ey, 0, dx, tag);
 
 double wmin = 0.8*w0; // rad/fs
 double wmax = 1.2*w0; // rad/fs
@@ -62,13 +67,9 @@ int Nw=200;
 dcomplex *ftall=new dcomplex[2*Nw];
 dcomplex *ft1 = ftall + 0*Nw;
 dcomplex *ft2 = ftall + 1*Nw;
- zset_mem(2*Nw, ftall, 0.0+I*0.0);
- int T=0; // total steps
-double *Hz;
-double *Ey;
-double HZM[Nx];
-double EYM[Nx];
+zset_mem(2*Nw, ftall, 0.0+I*0.0);
 int T=0; // total steps
+
 
 QTimer* timer;
 #define n_plot 2
@@ -81,8 +82,11 @@ QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    Ey=EYM;
-    Hz=HZM;
+    create_slab(Nx, eps, si1, si2, eslab);
+    output_eps_x(Nx, eps, dx, tag);
+    create_initial_dist(Nx, Dy, Hz, dx, dt,speed, ix0, tau, w0);
+    update_Ey(Nx, Ey, Dy, eps);
+    output_Ey_vs_x(Nx, Ey, 0, dx, tag);
     //    qDebug()<<speed;
     //    fields = new double[2*Nx*sizeof(double)];
     //    Hz = fields+0*Nx;
@@ -90,7 +94,9 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         Ey[i]=0;
+        Dy[i]=0;
         Hz[i]=0;
+        eps[i]=0;
     }
     //    create_initial_monochrom(Ey,Hz,dx,2*pi/5000.,dx*Nx/4,1);
     //    create_initial_monochrom(Ey,Hz,dx,2*pi/5000.,dx*Nx/4,-1);
@@ -247,7 +253,8 @@ void MainWindow::loop()
         time_i+=1;
 
         update_Bz(Nx, Hz, Ey, xi);
-        update_Dy(Nx, Ey, Hz, xi);
+        update_Dy(Nx, Dy, Hz, xi);
+        update_Ey(Nx, Ey, Dy, eps);
         for(int i=0;i<Nx;i++)
         {
             dataE[1][i]=Ey[i];
