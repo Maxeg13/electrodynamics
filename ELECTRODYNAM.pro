@@ -6,8 +6,8 @@
 CONFIG   += qwt
 QT       += core gui
 QWT_F = QWT
-INCLUDEPATH += C:/Qwt-6.1.3/include
-LIBS += -LC:/Qwt-6.1.3/lib -lqwt
+INCLUDEPATH += C:/QWT/include
+LIBS += -LC:/QWT/lib -lqwt
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

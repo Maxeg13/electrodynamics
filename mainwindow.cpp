@@ -15,7 +15,7 @@ char *tag="v1"; // used to label output files
 double tau = 1.0; // fs, width of the pulse
 double w0=0;
 /*** Computational parameters ***/
-#define Nx 40000 // 4000
+#define Nx 4000 // 4000
 int Nx_part=Nx/10;
 double dx = 20.0; // nm
 double xi = .9;
