@@ -9,6 +9,7 @@
 #include "QLineEdit"
 
 
+#include <iostream>
  #include<stdio.h>
  #include<stdlib.h>
 //#include<string.h>
@@ -76,8 +77,8 @@ QTimer* timer;
 #define n_plot 2
 
 int i1=1;
-myCurve *elCurve[n_plot], *magCurve[n_plot];
-vector<vector<float>> dataE, dataH, dataWave;
+myCurve *elCurve[n_plot], *magCurve[n_plot], *epsCurve;
+vector<vector<float>> dataE, dataH, dataWave, dataEps;
 
 QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
@@ -88,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 //    output_eps_x(Nx, eps, dx, tag);
     create_initial_dist(Nx, Dy, Hz, dx, dt,speed, ix0, tau, w0,1);
     update_Ey(Nx, Ey, Dy, eps);
+    qDebug()<<eps[0];
 //    output_Ey_vs_x(Nx, Ey, 0, dx, tag);
     //    qDebug()<<speed;
     //    fields = new double[2*Nx*sizeof(double)];
@@ -138,6 +140,16 @@ MainWindow::MainWindow(QWidget *parent) :
         dataH[1][i]=Hz[i];
     }
 
+
+    dataEps.resize(2);
+    for(int i=0;i<2;i++)
+        dataEps[i].resize(Nx,0);
+    for(int i=0;i<Nx;i++)
+    {
+        dataEps[0][i]=dx*(i);
+        dataEps[1][i]=eps[i];
+    }
+
     float yBond=1.5;
 
     d_plot[0] = new QwtPlot(this);
@@ -156,6 +168,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     elCurve[0]=new myCurve(Nx, dataE,d_plot[0],"ED",Qt::black,Qt::black,i1);
     magCurve[0]=new myCurve(Nx, dataH,d_plot[0],"ED",Qt::green,Qt::green,i1);
+    epsCurve=new myCurve(Nx, dataEps,d_plot[0],"ED",Qt::yellow,Qt::yellow,i1);
 
     elCurve[1]=new myCurve(Nx_part, dataWave,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
@@ -173,7 +186,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     elCurve[0]->signalDrawing();
     elCurve[1]->signalDrawing();
+
     magCurve[0]->signalDrawing();
+        epsCurve->signalDrawing();
 
 
     //    keyPressEvent(QKeyEvent *event);
@@ -249,14 +264,20 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::loop()
 {
     //    QString::toInt()
+    cout<<Ey[100];
     static int time_i=0;
     for(int j=0;j<LE->text().toInt();j++)
     {
         time_i+=1;
 
+//        update_Bz(Nx, Hz, Ey, xi);
+//        update_Dy(Nx, Dy, Hz, xi);
+//        update_Ey(Nx, Ey, Dy, eps);
+
         update_Bz(Nx, Hz, Ey, xi);
-        update_Dy(Nx, Dy, Hz, xi);
+        update_Dy(Nx, Ey, Hz, xi);
         update_Ey(Nx, Ey, Dy, eps);
+
         for(int i=0;i<Nx;i++)
         {
             dataE[1][i]=Ey[i];
@@ -270,11 +291,12 @@ void MainWindow::loop()
             //            dataWave[1][i]=dataE[1][time_i+200-100+i];
         }
     }
-    qDebug()<<time_i;
+//    qDebug()<<time_i;
 
     elCurve[0]->signalDrawing();
     elCurve[1]->signalDrawing();
     magCurve[0]->signalDrawing();
+    epsCurve->signalDrawing();
 
     QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));

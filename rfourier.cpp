@@ -4,7 +4,7 @@
 #include "rfourier.h"
 #include <complex>
 #include <stdio.h>
-#include<math.h>
+#include <math.h>
 using namespace std;
 
 extern const double speed, pi;
