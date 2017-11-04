@@ -24,26 +24,26 @@ typedef  complex<double> dcomplex;
 
 QLineEdit* LE;
 using namespace std;
-
+bool fourb1, fourb2;
 char *tag="v1"; // used to label output files
-double eslab = 4.0; // permittivity of the slab
-double lambda0 = 1000; // nm
-double tau = 8; // fs, width of the pulse
+double eslab = 2.; // permittivity of the slab
+double lambda0 = 600; // nm
+double tau = 5; // fs, width of the pulse
 
 /*** Computational parameters ***/
 double dx = 20.0; // nm
 int Nx = 12000;
 
 
-int ix0 = 3000;
+int ix0 = 4000;
 
 int Nslab = 200; // width of the slab
 
 int si1 = 6000; // start of the slab
 int si2 = si1+Nslab-1; // end of the slab
 
-int fi1 = 7500; //
-int fi2 = si2+10; //
+int fi1 = 5000; //
+int fi2 = 2500; //
 
 double xi = 0.9;
 int No = 200; // defines the output rate
@@ -66,9 +66,10 @@ double wmin = 0.8*w0; // rad/fs
 double wmax = 1.2*w0; // rad/fs
 int Nw=200;
 
-dcomplex *ftall=new dcomplex[2*Nw];
+dcomplex *ftall=new dcomplex[3*Nw];
 dcomplex *ft1 = ftall + 0*Nw;
 dcomplex *ft2 = ftall + 1*Nw;
+dcomplex *ftth1=ftall+ 2*Nw;
 
 int T=0; // total steps
 
@@ -77,8 +78,8 @@ QTimer* timer;
 #define n_plot 2
 
 int i1=1;
-myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourCurve;
-vector<vector<float>> dataE, dataH, dataFour, dataEps;
+myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve;
+vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR;
 
 QwtPlot* d_plot[n_plot];
 MainWindow::MainWindow(QWidget *parent) :
@@ -98,9 +99,11 @@ MainWindow::MainWindow(QWidget *parent) :
         Dy[i]=0;
         Hz[i]=0;
         eps[i]=0;
-        ft1[i]=0;
-        ft2[i]=0;
+
     }
+
+
+
     create_slab(Nx, eps, si1, si2, eslab);
 
     create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
@@ -121,13 +124,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
     }
 
-    dataFour.resize(2);
-    dataFour[0].resize(Nw,0);
-    dataFour[1].resize(Nw,0);
+    dataFourR.resize(2);
+    dataFourR[0].resize(Nw,0);
+    dataFourR[1].resize(Nw,0);
     for(int i=0;i<Nw;i++)
     {
-//        dataFour[0][i]=wmin+i*1./(wmax-wmin);
-        dataFour[1][i]=dataE[1][i];
+        dataFourR[0][i]=wmin+i*(wmax-wmin)/Nw;
+        dataFourR[1][i]=0;
+    }
+
+    dataFourI.resize(2);
+    dataFourI[0].resize(Nw,0);
+    dataFourI[1].resize(Nw,0);
+    for(int i=0;i<Nw;i++)
+    {
+        dataFourI[0][i]=wmin+i*(wmax-wmin)/Nw;
+        dataFourI[1][i]=0;
+    }
+
+
+    dataTR.resize(2);
+    dataTR[0].resize(Nw,0);
+    dataTR[1].resize(Nw,0);
+    for(int i=0;i<Nw;i++)
+    {
+        dcomplex dc(1,1);
+//        dc=2.*dc;
+
+
+        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
+        dataTR[1][i]=(sqrt(eslab)-1)/(sqrt(eslab)+1);
     }
 
     dataH.resize(2);
@@ -159,18 +185,20 @@ MainWindow::MainWindow(QWidget *parent) :
     d_plot[0]->setAxisTitle(QwtPlot::xBottom, "dist, nm");
 
     d_plot[1] = new QwtPlot(this);
-    drawingInit(d_plot[1],QString("wave"));
-    d_plot[1]->setAxisScale(QwtPlot::yLeft,-yBond,yBond);
+    drawingInit(d_plot[1],QString("Fourier koefs"));
+    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,2);
     d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
-    d_plot[1]->setAxisTitle(QwtPlot::yLeft, "Ey/E");
-    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "dist, nm");
+    d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
+    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "cyc freq, rad/fs");
 
     elCurve[0]=new myCurve(Nx, dataE,d_plot[0],"ED",Qt::black,Qt::black,i1);
     magCurve[0]=new myCurve(Nx, dataH,d_plot[0],"ED",Qt::green,Qt::green,i1);
     epsCurve=new myCurve(Nx, dataEps,d_plot[0],"ED",Qt::yellow,Qt::yellow,i1);
-    fourCurve=new myCurve(Nw, dataFour,d_plot[0],"ED",Qt::black,Qt::black,i1);
+    fourRCurve=new myCurve(Nw, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
+    fourICurve=new myCurve(Nw, dataFourI,d_plot[1],"ED",Qt::black,Qt::black,i1);
+     fourThCurve=new myCurve(Nw, dataTR,d_plot[1],"ED",Qt::green,Qt::green,i1);
 
-//    elCurve[1]=new myCurve(Nx_part, dataFour,d_plot[1],"ED",Qt::black,Qt::black,i1);
+//    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
     LE=new QLineEdit("10");
     QGridLayout* MW=new QGridLayout();
@@ -185,13 +213,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->resize(QSize(600,450));
 
     elCurve[0]->signalDrawing();
-    elCurve[1]->signalDrawing();
-
     magCurve[0]->signalDrawing();
-//    epsCurve->signalDrawing();
 
-
-    //    keyPressEvent(QKeyEvent *event);
 }
 
 void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
@@ -244,6 +267,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if(event->text()=="s")
     {
         //    qDebug()<<"hello";
+        fourb1=0;
+        fourb2=0;
         static int dis_i;
         dis_i++;
         dis_i%=2;
@@ -259,6 +284,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
         loop();
     }
+    else if(event->text()=="i")
+        fourb1=1;
+    else if(event->text()=="r")
+        fourb2=1;
+
 }
 
 void MainWindow::loop()
@@ -276,7 +306,8 @@ void MainWindow::loop()
         update_Ey(Nx, Ey, Dy, eps);
 
         double time=dt*(time_i+1); // for Ey
-        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[fi1], Ey[fi2], dt, time);
+        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+1000], Ey[ix0], dt, time, fourb1, fourb2 );
+//        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)
         {
@@ -285,13 +316,21 @@ void MainWindow::loop()
         }
 
         for(int i=0;i<Nw;i++)
-            dataFour[1][i]=abs(ft1[i]);
+        {
+//            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
+
+        dataFourI[1][i]=abs(ft1[i]);
+        dataFourR[1][i]=abs(ft2[i]);
+        }
     }
 
     elCurve[0]->signalDrawing();
-    elCurve[1]->signalDrawing();
+//    elCurve[1]->signalDrawing();
     magCurve[0]->signalDrawing();
     epsCurve->signalDrawing();
+    fourRCurve->signalDrawing();
+    fourICurve->signalDrawing();
+//    fourThCurve->signalDrawing();
 
     QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
