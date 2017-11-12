@@ -26,7 +26,7 @@ QLineEdit* LE;
 using namespace std;
 bool fourb1, fourb2;
 char *tag="v1"; // used to label output files
-double eslab = 2.; // permittivity of the slab
+double eslab = 1.; // permittivity of the slab
 double lambda0 = 600; // nm
 double tau = 5; // fs, width of the pulse
 
@@ -35,7 +35,7 @@ double dx = 20.0; // nm
 int Nx = 6000;
 
 
-int ix0 = 1600;
+int ix0 = 2600;//1600
 
 int Nslab = 200; // width of the slab
 
@@ -57,6 +57,8 @@ double dt = xi*dx/speed; // in fs
 /*** arrays for the fields ***/
 double *fields = new double[3*Nx];
 double *Hz = fields+0*Nx;
+double *Bz =new double[Nx];
+double *Bz2 =new double[Nx];
 double *Ey = fields+1*Nx;
 double *Dy = fields+2*Nx;
 double *Dy2=new double[Nx];
@@ -99,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent) :
         Ey[i]=0;
         Dy[i]=0;
         Dy2[i]=0;
+        Bz[i]=0;
+        Bz2[i]=0;
         Hz[i]=0;
 //        eps[i]=0;
 
@@ -181,7 +185,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         dataEps[0][i]=dx*(i);
-        dataEps[1][i]=eps[i]/4;
+        dataEps[1][i]=abs(eta[i])*10;
     }
 
     float yBond=1.5;
@@ -316,9 +320,10 @@ void MainWindow::loop()
     {
         time_i+=1;
 
-
-        update_Bz(Nx, Hz, Ey, xi);
-        save_Dy2(Nx, Dy2,Dy);
+        save_mas(Nx, Bz2, Bz);
+        update_Bz(Nx, Bz, Ey, xi);
+        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
+        save_mas(Nx, Dy2,Dy);
         update_Dy(Nx, Dy, Hz, xi);
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 

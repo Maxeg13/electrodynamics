@@ -13,14 +13,14 @@ void create_slab(int Nx, double *eps, double *eta, int j1, int j2, double eslab)
 //    }
     for(int i=j1; i<Nx; i++){
         eps[i] = eslab;
-        eta[i]=2*pi*dt*2*w0;
+        eta[i]=(i-j1)*2*pi*dt*2*w0/(Nx-j1)/20;
 //        eta[i]=0.01;
     }
 
 
 
 }
-void save_Dy2(int Nx, double* Dy2, double * Dy)
+void save_mas(int Nx, double* Dy2, double * Dy)
 {
     for (int i=0;i<Nx;i++)
         Dy2[i]=Dy[i];
@@ -36,4 +36,11 @@ void update_Ey(int Nx, double *Ey,
 //    Sums+=Ey[i];
 //        Ey[i]=(D[])/(eps[i]+eta[i]);
     }
+}
+
+void update_Hz(int Nx, double *Hz,
+               const double *Bz,const double *Bz2,
+               const double *mu, const double* eta){
+    for(int i=0; i<Nx; i++)
+    Hz[i]=((mu[i]-eta[i])/(mu[i]+eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+eta[i]);
 }
