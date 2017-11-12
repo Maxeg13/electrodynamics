@@ -59,8 +59,9 @@ double *fields = new double[3*Nx];
 double *Hz = fields+0*Nx;
 double *Ey = fields+1*Nx;
 double *Dy = fields+2*Nx;
+double *Dy2=new double[Nx];
 double *eps = new double[Nx];
-
+double *eta=new double[Nx];
 
 double wmin = 0.8*w0; // rad/fs
 double wmax = 1.2*w0; // rad/fs
@@ -97,17 +98,18 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         Ey[i]=0;
         Dy[i]=0;
+        Dy2[i]=0;
         Hz[i]=0;
-        eps[i]=0;
+//        eps[i]=0;
 
     }
 
 
 
-    create_slab(Nx, eps, si1, si2, eslab);
+    create_slab(Nx, eps, eta, si1, si2, eslab);
 
     create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
-    update_Ey(Nx, Ey, Dy, eps);
+    update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
     //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
 
     timer=new QTimer(this);
@@ -302,8 +304,9 @@ void MainWindow::loop()
 
 
         update_Bz(Nx, Hz, Ey, xi);
+        save_Dy2(Nx, Dy2,Dy);
         update_Dy(Nx, Dy, Hz, xi);
-        update_Ey(Nx, Ey, Dy, eps);
+        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
         rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+1000], Ey[ix0], dt, time, fourb1, fourb2 );
