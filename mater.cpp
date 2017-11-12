@@ -14,6 +14,7 @@ void create_slab(int Nx, double *eps, double *eta, int j1, int j2, double eslab)
     for(int i=j1; i<Nx; i++){
         eps[i] = eslab;
         eta[i]=2*pi*dt*2*w0;
+//        eta[i]=0.01;
     }
 
 
@@ -31,6 +32,8 @@ void update_Ey(int Nx, double *Ey,
 
     for(int i=0; i<Nx; i++){
 //        Ey[i] = Dy[i]/eps[i];
-        Ey[i]=(eps[i]-eta[i])/(eps[i]+eta[i])*Ey[i]+(Dy2[i]-Dy[i])/(eps[i]+eta[i]);
+        Ey[i]=((eps[i]-eta[i])/(eps[i]+eta[i]))*Ey[i]+(Dy[i]-Dy2[i])/(eps[i]+eta[i]);
+//    Sums+=Ey[i];
+//        Ey[i]=(D[])/(eps[i]+eta[i]);
     }
 }

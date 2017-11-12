@@ -7,7 +7,7 @@
 #include "pulse.h"
 #include "QKeyEvent"
 #include "QLineEdit"
-
+//QGridLayout::setEnabled()
 
 #include <iostream>
 #include<stdio.h>
@@ -32,20 +32,20 @@ double tau = 5; // fs, width of the pulse
 
 /*** Computational parameters ***/
 double dx = 20.0; // nm
-int Nx = 12000;
+int Nx = 6000;
 
 
-int ix0 = 4000;
+int ix0 = 1600;
 
 int Nslab = 200; // width of the slab
 
-int si1 = 6000; // start of the slab
+int si1 = Nx/2; // start of the slab
 int si2 = si1+Nslab-1; // end of the slab
 
 int fi1 = 5000; //
 int fi2 = 2500; //
 
-double xi = 0.9;
+double xi = 0.5;
 int No = 200; // defines the output rate
 
 /*** start exe
@@ -109,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
     create_slab(Nx, eps, eta, si1, si2, eslab);
 
     create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+//    save_Dy2(Nx,Dy2,Dy);
     update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
     //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
 
@@ -148,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent) :
     dataTR.resize(2);
     dataTR[0].resize(Nw,0);
     dataTR[1].resize(Nw,0);
+
+    double epsImK=4*pi*2*w0;
     for(int i=0;i<Nw;i++)
     {
         dcomplex dc(1,1);
@@ -155,7 +158,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
         dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
-        dataTR[1][i]=(sqrt(eslab)-1)/(sqrt(eslab)+1);
+        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
+                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
+//        dataTR[1][i]=1;
+//        sqrt(dcomplex(0,1));
+//        sqrt((double)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
     }
 
     dataH.resize(2);
@@ -192,6 +199,10 @@ MainWindow::MainWindow(QWidget *parent) :
     d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
     d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
     d_plot[1]->setAxisTitle(QwtPlot::xBottom, "cyc freq, rad/fs");
+    QwtPlotGrid *grid = new QwtPlotGrid(); //
+
+        grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
+        grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
     elCurve[0]=new myCurve(Nx, dataE,d_plot[0],"ED",Qt::black,Qt::black,i1);
     magCurve[0]=new myCurve(Nx, dataH,d_plot[0],"ED",Qt::green,Qt::green,i1);
@@ -259,6 +270,9 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     //    d_plot->setAxisScale(1,-500,500,200);
     d_plot->setTitle( *qwtt ); // заголовок
     d_plot->setCanvasBackground( Qt::white ); // цвет фона
+//    d_plot->set
+
+
 
 
 
@@ -309,7 +323,7 @@ void MainWindow::loop()
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
-        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+1000], Ey[ix0], dt, time, fourb1, fourb2 );
+        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
 //        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)
@@ -320,10 +334,10 @@ void MainWindow::loop()
 
         for(int i=0;i<Nw;i++)
         {
-//            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
+            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
 
         dataFourI[1][i]=abs(ft1[i]);
-        dataFourR[1][i]=abs(ft2[i]);
+//        dataFourR[1][i]=abs(ft2[i]);
         }
     }
 
@@ -332,8 +346,8 @@ void MainWindow::loop()
     magCurve[0]->signalDrawing();
     epsCurve->signalDrawing();
     fourRCurve->signalDrawing();
-    fourICurve->signalDrawing();
-//    fourThCurve->signalDrawing();
+//    fourICurve->signalDrawing();
+    fourThCurve->signalDrawing();
 
     QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
