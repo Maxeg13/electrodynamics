@@ -24,6 +24,7 @@ public:
 
 public slots:
     void loop();
+    void changeDist();
 //    void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *event);
 };

@@ -7,6 +7,7 @@
 #include "pulse.h"
 #include "QKeyEvent"
 #include "QLineEdit"
+#include "QSlider"
 //QGridLayout::setEnabled()
 
 #include <iostream>
@@ -23,6 +24,7 @@ typedef  complex<double> dcomplex;
 
 
 QLineEdit* LE;
+QSlider* slider_width;
 using namespace std;
 bool fourb1, fourb2;
 char *tag="v1"; // used to label output files
@@ -32,14 +34,14 @@ double tau = 5; // fs, width of the pulse
 
 /*** Computational parameters ***/
 double dx = 20.0; // nm
-int Nx = 6000;
+int Nx = 1200;
 
 
-int ix0 = 2600;//1600
+int ix0 = 900;//1600
 
 int Nslab = 200; // width of the slab
-
-int si1 = Nx/2; // start of the slab
+int width = 100;
+int si1 = Nx-width; // start of the slab
 int si2 = si1+Nslab-1; // end of the slab
 
 int fi1 = 5000; //
@@ -81,10 +83,36 @@ QTimer* timer;
 #define n_plot 2
 
 int i1=1;
-myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve;
-vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR;
+myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve, *muConstCurve[5];
+vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR;
 
 QwtPlot* d_plot[n_plot];
+
+void MainWindow::changeDist()
+{
+    qDebug()<<slider_width->value();
+    for(int i=0;i<Nx;i++)
+    {
+        Ey[i]=0;
+        Dy[i]=0;
+        Dy2[i]=0;
+        Bz[i]=0;
+        Bz2[i]=0;
+        Hz[i]=0;
+//        eps[i]=0;
+    }
+    create_slab(Nx, eps, eta, Nx-slider_width->value(), si2, eslab);
+    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+        update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
+
+        for(int i=0;i<Nx;i++)
+        {
+            dataEps[0][i]=dx*(i);
+            dataEps[1][i]=abs(eta[i])*30;
+        }
+        epsCurve->signalDrawing();
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -105,7 +133,6 @@ MainWindow::MainWindow(QWidget *parent) :
         Bz2[i]=0;
         Hz[i]=0;
 //        eps[i]=0;
-
     }
 
 
@@ -116,6 +143,15 @@ MainWindow::MainWindow(QWidget *parent) :
 //    save_Dy2(Nx,Dy2,Dy);
     update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
     //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
+
+
+
+    slider_width= new QSlider(this);
+    slider_width->setRange(1,500);
+    slider_width->setValue(100);
+    slider_width->setOrientation(Qt::Horizontal);
+//    changeDist();
+    connect(slider_width,SIGNAL(sliderReleased()),this,SLOT(changeDist()));
 
     timer=new QTimer(this);
     timer->start(42);
@@ -128,8 +164,10 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         dataE[0][i]=dx*i;
         dataE[1][i]=Ey[i];
-
     }
+
+    dataR.resize(2);
+
 
     dataFourR.resize(2);
     dataFourR[0].resize(Nw,0);
@@ -139,6 +177,8 @@ MainWindow::MainWindow(QWidget *parent) :
         dataFourR[0][i]=wmin+i*(wmax-wmin)/Nw;
         dataFourR[1][i]=0;
     }
+
+
 
     dataFourI.resize(2);
     dataFourI[0].resize(Nw,0);
@@ -185,7 +225,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         dataEps[0][i]=dx*(i);
-        dataEps[1][i]=abs(eta[i])*10;
+        dataEps[1][i]=abs(eta[i])*30;
     }
 
     float yBond=1.5;
@@ -222,15 +262,18 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(MW);
 
-    MW->addWidget(d_plot[0],0,0);
-    MW->addWidget(d_plot[1],1,0);
-    MW->addWidget(LE,2,0);
+    MW->addWidget(d_plot[0],0,0,1,2);
+    MW->addWidget(d_plot[1],1,0,1,2);
+    MW->addWidget(slider_width,2,0);
+    MW->addWidget(LE,2,1);
+
     //    MW->addWidget(d_plot,2,1,2,4);
     setCentralWidget(centralWidget);
     this->resize(QSize(600,450));
 
     elCurve[0]->signalDrawing();
     magCurve[0]->signalDrawing();
+        epsCurve->signalDrawing();
 
 }
 
@@ -306,8 +349,18 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if(event->text()=="i")
         fourb1=1;
+
     else if(event->text()=="r")
         fourb2=1;
+    else if(event->text()=="c")
+    {
+
+    }
+    else if(event->text()=="a")
+    {
+        dataR[0].push_back(slider_width->value());
+        dataR[1].push_back(getMax(Ey,Nx));
+    }
 
 }
 
@@ -328,7 +381,7 @@ void MainWindow::loop()
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
-        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
+//        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
 //        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)
@@ -337,28 +390,38 @@ void MainWindow::loop()
             dataH[1][i]=Hz[i];
         }
 
-        for(int i=0;i<Nw;i++)
-        {
-            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
+//        for(int i=0;i<Nw;i++)
+//        {
+//            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
 
-        dataFourI[1][i]=abs(ft1[i]);
-//        dataFourR[1][i]=abs(ft2[i]);
-        }
+//        dataFourI[1][i]=abs(ft1[i]);
+////        dataFourR[1][i]=abs(ft2[i]);
+//        }
     }
 
     elCurve[0]->signalDrawing();
 //    elCurve[1]->signalDrawing();
     magCurve[0]->signalDrawing();
-    epsCurve->signalDrawing();
-    fourRCurve->signalDrawing();
+    muConstCurve[0]->signalDrawing();
+
+
+//    fourRCurve->signalDrawing();
 //    fourICurve->signalDrawing();
-    fourThCurve->signalDrawing();
+//    fourThCurve->signalDrawing();
 
     QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
 
     //    d_plot->setAxisScale(1,-500,500,200);
     d_plot[0]->setTitle( *qwtt ); // заголовок
+}
+
+float getMax(double* x, int Nx)
+{
+    float max=0;
+for(int i=0;i<Nx;i++)
+    if(max<x[i]) max=x[i];
+return max;
 }
 
 MainWindow::~MainWindow()

@@ -1,20 +1,13 @@
 #include "drawing.h"
 #include "mainwindow.h"
 extern double dx;
-    myCurve::myCurve(int bufShowSize, std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
+    myCurve::myCurve(std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
             const QColor &color, const QColor &colorSymbol,int& ind_ch ):
         data(dataH),ind_c(ind_ch)
     {
         d_plot=d_plotH;
         setTitle(title);
         setPen(color,2);
-
-
-        dataH.resize(bufShowSize);
-        for(int i=0;i<dataH[0].size();i++)
-        {
-//            dataH[i ]=cos(i/4.);
-        }
     }
 
     void myCurve::signalDrawing()
@@ -22,7 +15,7 @@ extern double dx;
         // Добавить точки на ранее созданную кривую
         QPolygonF points;
 
-        for (int i=0;i<data.size();i++)
+        for (int i=0;i<data[0].size();i++)
         {
             points<<QPointF(data[0][i],data[1][i]);
         }

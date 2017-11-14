@@ -8,13 +8,13 @@ void create_slab(int Nx, double *eps, double *eta, int j1, int j2, double eslab)
         eps[i] = 1;
         eta[i]=0;
     }
-//    for(int i=j1; i<j2+1; i++){
-//        eps[i] = eslab;
-//    }
+    //    for(int i=j1; i<j2+1; i++){
+    //        eps[i] = eslab;
+    //    }
     for(int i=j1; i<Nx; i++){
         eps[i] = eslab;
-        eta[i]=(i-j1)*2*pi*dt*2*w0/(Nx-j1)/20;
-//        eta[i]=0.01;
+//        eta[i]=(i-j1)*2*pi*dt*2*w0/(Nx-j1)/20;
+                eta[i]=0.01;
     }
 
 
@@ -31,16 +31,21 @@ void update_Ey(int Nx, double *Ey,
                const double *eps, const double* eta){
 
     for(int i=0; i<Nx; i++){
-//        Ey[i] = Dy[i]/eps[i];
+        //        Ey[i] = Dy[i]/eps[i];
         Ey[i]=((eps[i]-eta[i])/(eps[i]+eta[i]))*Ey[i]+(Dy[i]-Dy2[i])/(eps[i]+eta[i]);
-//    Sums+=Ey[i];
-//        Ey[i]=(D[])/(eps[i]+eta[i]);
+        //    Sums+=Ey[i];
+        //        Ey[i]=(D[])/(eps[i]+eta[i]);
     }
 }
 
 void update_Hz(int Nx, double *Hz,
                const double *Bz,const double *Bz2,
-               const double *mu, const double* eta){
+               const double *mu,  double* eta){
     for(int i=0; i<Nx; i++)
-    Hz[i]=((mu[i]-eta[i])/(mu[i]+eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+eta[i]);
+    {
+        double k=1;
+//        eta[i]*=k;
+        Hz[i]=((mu[i]-k*eta[i])/(mu[i]+k*eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+k*eta[i]);
+//        eta[i]/=k;
+    }
 }
