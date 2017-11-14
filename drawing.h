@@ -19,8 +19,9 @@ public:
     QwtPlot* d_plot;
     QwtSymbol *symbol;
     int& ind_c;
-
-    myCurve(int bufShowSize, std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
+    myCurve( std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
+            const QColor &color,int& ind_ch );
+    myCurve( std::vector<std::vector<float>> &dataH,QwtPlot* d_plotH,const QString &title,
             const QColor &color, const QColor &colorSymbol,int& ind_ch );
     void signalDrawing();
     void pointDrawing(float , float);

@@ -25,13 +25,14 @@ typedef  complex<double> dcomplex;
 
 QLineEdit* LE;
 QSlider* slider_width;
+QSlider* slider_eta;
 using namespace std;
 bool fourb1, fourb2;
 char *tag="v1"; // used to label output files
 double eslab = 1.; // permittivity of the slab
 double lambda0 = 600; // nm
 double tau = 5; // fs, width of the pulse
-
+double getMax(double*, int);
 /*** Computational parameters ***/
 double dx = 20.0; // nm
 int Nx = 1200;
@@ -83,7 +84,7 @@ QTimer* timer;
 #define n_plot 2
 
 int i1=1;
-myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve, *muConstCurve[5];
+myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve, *etaConstCurve[5];
 vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR;
 
 QwtPlot* d_plot[n_plot];
@@ -239,21 +240,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     d_plot[1] = new QwtPlot(this);
     drawingInit(d_plot[1],QString("Fourier koefs"));
-    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,2);
-    d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
+//    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,2);
+//    d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
     d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
-    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "cyc freq, rad/fs");
+    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "width, number of nodes");
     QwtPlotGrid *grid = new QwtPlotGrid(); //
 
         grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
         grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
-    elCurve[0]=new myCurve(Nx, dataE,d_plot[0],"ED",Qt::black,Qt::black,i1);
-    magCurve[0]=new myCurve(Nx, dataH,d_plot[0],"ED",Qt::green,Qt::green,i1);
-    epsCurve=new myCurve(Nx, dataEps,d_plot[0],"ED",Qt::yellow,Qt::yellow,i1);
-    fourRCurve=new myCurve(Nw, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
-    fourICurve=new myCurve(Nw, dataFourI,d_plot[1],"ED",Qt::black,Qt::black,i1);
-     fourThCurve=new myCurve(Nw, dataTR,d_plot[1],"ED",Qt::green,Qt::green,i1);
+    elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,i1);
+    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,i1);
+    epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,i1);
+    fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,i1);
+    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,i1);
+     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,i1);
+     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,i1);
 
 //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
@@ -273,7 +275,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     elCurve[0]->signalDrawing();
     magCurve[0]->signalDrawing();
-        epsCurve->signalDrawing();
+    epsCurve->signalDrawing();
 
 }
 
@@ -402,7 +404,7 @@ void MainWindow::loop()
     elCurve[0]->signalDrawing();
 //    elCurve[1]->signalDrawing();
     magCurve[0]->signalDrawing();
-    muConstCurve[0]->signalDrawing();
+    etaConstCurve[0]->signalDrawing();
 
 
 //    fourRCurve->signalDrawing();
@@ -416,9 +418,9 @@ void MainWindow::loop()
     d_plot[0]->setTitle( *qwtt ); // заголовок
 }
 
-float getMax(double* x, int Nx)
+double getMax(double* x, int Nx)
 {
-    float max=0;
+    double max=0;
 for(int i=0;i<Nx;i++)
     if(max<x[i]) max=x[i];
 return max;
