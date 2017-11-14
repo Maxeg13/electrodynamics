@@ -240,8 +240,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     d_plot[1] = new QwtPlot(this);
     drawingInit(d_plot[1],QString("Fourier koefs"));
-//    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,2);
-//    d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
+    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,1);
+    d_plot[1]->setAxisScale(QwtPlot::xBottom,0,80);
     d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
     d_plot[1]->setAxisTitle(QwtPlot::xBottom, "width, number of nodes");
     QwtPlotGrid *grid = new QwtPlotGrid(); //
