@@ -28,6 +28,7 @@ QSlider* slider_width;
 QSlider* slider_eta;
 using namespace std;
 bool fourb1, fourb2;
+int iii=1;
 char *tag="v1"; // used to label output files
 double eslab = 1.; // permittivity of the slab
 double lambda0 = 600; // nm
@@ -42,8 +43,11 @@ int ix0 = 700;//1600
 
 int Nslab = 200; // width of the slab
 int width = 100;
+
 int si1 = 1100; // start of the slab
 int si2 = si1+100; // end of the slab
+int i1=1000;
+int i2=si2+100;
 
 int fi1 = 5000; //
 int fi2 = 2500; //
@@ -67,6 +71,8 @@ double *Dy = fields+2*Nx;
 double *Dy2=new double[Nx];
 double *eps = new double[Nx];
 double *eta=new double[Nx];
+double HL, HR, EL, ER;
+
 
 double wmin = 0.8*w0; // rad/fs
 double wmax = 1.2*w0; // rad/fs
@@ -83,7 +89,7 @@ int T=0; // total steps
 QTimer* timer;
 #define n_plot 2
 
-int i1=1;
+//int i1=1;
 myCurve *elCurve[1], *magCurve[1], *epsCurve, *fourRCurve, *fourICurve, *fourThCurve, *etaConstCurve[5];
 vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR;
 
@@ -103,7 +109,7 @@ void MainWindow::changeDist()
 //        eps[i]=0;
     }
     create_slab(Nx, eps, eta, Nx-slider_width->value(), si2, eslab);
-    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+//    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
         update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
 
         for(int i=0;i<Nx;i++)
@@ -140,7 +146,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     create_slab(Nx, eps, eta, si1, si2, eslab);
 
-    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+//    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
 //    save_Dy2(Nx,Dy2,Dy);
     update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
     //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
@@ -249,13 +255,14 @@ MainWindow::MainWindow(QWidget *parent) :
         grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
         grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
-    elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,i1);
-    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,i1);
-    epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,i1);
-    fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,i1);
-    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,i1);
-     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,i1);
-     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,i1);
+
+    elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
+    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
+    epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
+    fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
+    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
+     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
+     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
 
 //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
@@ -374,12 +381,13 @@ void MainWindow::loop()
     for(int j=0;j<LE->text().toInt();j++)
     {
         time_i+=1;
-
+        getEH0(EL,HL,time_i,i1,ix0,  dx,  dt,  speed,  tau,  w0);
+        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
         save_mas(Nx, Bz2, Bz);
-        update_Bz(Nx, Bz, Ey, xi);
+        update_Bz(Nx, Bz, Ey, EL, ER, i1, i2, xi);
         update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
         save_mas(Nx, Dy2,Dy);
-        update_Dy(Nx, Dy, Hz, xi);
+        update_Dy(Nx, Dy, Hz, HL, HR,i1,i2, xi);
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey

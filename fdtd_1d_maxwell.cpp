@@ -1,16 +1,19 @@
 #include "fdtd_1d_maxwell.h"
 void update_Bz(int Nx, double *Bz, const double *Ey, const double& EL, const double& ER, int i1,int i2, double xi){
 
-    for(int i=1; i<Nx; i++){
-        switch(i)
-        {
-        case i1-1:
+    for(int i=0; i<Nx-1; i++){
+//        switch(i)
+//        {
+//        case (i1-1):
+        if(i==(i1-1))
             Bz[i] +=-xi*(Ey[i+1]-Ey[i]-EL);
-        case i2-1:
+//        case i2:
+        else if(i==i2)
             Bz[i] +=-xi*(Ey[i+1]-Ey[i]+ER);
-        default:
+//        default:
+        else
             Bz[i] +=-xi*(Ey[i+1]-Ey[i]);
-        }
+
     }
     int i=Nx-1; // last point
     Bz[i] +=-xi*(0.0 - Ey[i]);
@@ -36,15 +39,18 @@ void update_Bz(int Nx, double *Bz, const double *Ey, const double& EL, const dou
 void update_Dy(int Nx, double *Dy,const double *Hz, const double& HL,const double& HR, int i1, int i2, double xi){
 
     for(int i=1; i<Nx; i++){
-        switch(i)
-        {
-        case i1:
+//        switch(i)
+//        {
+//        case i1:
+        if(i==i1)
             Dy[i] +=-xi*(Hz[i]-Hz[i-1]-HL);
-        case i2+1:
+//        case (i2+1):
+        else if(i==(i2+1))
             Dy[i] +=-xi*(Hz[i]-Hz[i-1]+HR);
-        default:
+//        default:
+        else
             Dy[i] +=-xi*(Hz[i]-Hz[i-1]);
-        }
+
     }
     //    Dy[Nx-1]=0;
 
