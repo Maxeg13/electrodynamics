@@ -71,7 +71,7 @@ double *Dy = fields+2*Nx;
 double *Dy2=new double[Nx];
 double *eps = new double[Nx];
 double *eta=new double[Nx];
-double HL, HR, EL, ER;
+double HL, HR=0, EL, ER=0;
 
 
 double wmin = 0.8*w0; // rad/fs
