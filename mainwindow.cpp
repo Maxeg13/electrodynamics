@@ -35,15 +35,15 @@ double tau = 5; // fs, width of the pulse
 double getMax(double*, int);
 /*** Computational parameters ***/
 double dx = 20.0; // nm
-int Nx = 1200;
+int Nx = 2500;
 
 
-int ix0 = 900;//1600
+int ix0 = 700;//1600
 
 int Nslab = 200; // width of the slab
 int width = 100;
-int si1 = Nx-width; // start of the slab
-int si2 = si1+Nslab-1; // end of the slab
+int si1 = 1100; // start of the slab
+int si2 = si1+100; // end of the slab
 
 int fi1 = 5000; //
 int fi2 = 2500; //
@@ -109,7 +109,7 @@ void MainWindow::changeDist()
         for(int i=0;i<Nx;i++)
         {
             dataEps[0][i]=dx*(i);
-            dataEps[1][i]=abs(eta[i])*30;
+            dataEps[1][i]=abs(eps[i])*1;
         }
         epsCurve->signalDrawing();
 }
@@ -226,7 +226,7 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         dataEps[0][i]=dx*(i);
-        dataEps[1][i]=abs(eta[i])*30;
+        dataEps[1][i]=abs(eps[i])*1;
     }
 
     float yBond=1.5;

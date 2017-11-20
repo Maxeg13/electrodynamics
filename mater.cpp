@@ -11,10 +11,10 @@ void create_slab(int Nx, double *eps, double *eta, int j1, int j2, double eslab)
     //    for(int i=j1; i<j2+1; i++){
     //        eps[i] = eslab;
     //    }
-    for(int i=j1; i<Nx; i++){
+    for(int i=j1; i<j2; i++){
         eps[i] = eslab;
 //        eta[i]=(i-j1)*2*pi*dt*2*w0/(Nx-j1)/20;
-                eta[i]=0.4;
+                eta[i]=0;
     }
 
 
