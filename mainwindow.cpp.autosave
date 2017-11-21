@@ -30,12 +30,12 @@ using namespace std;
 bool fourb1, fourb2;
 int iii=1;
 char *tag="v1"; // used to label output files
-double eslab = 1.; // permittivity of the slab
+double eslab = 4.; // permittivity of the slab
 double lambda0 = 600; // nm
 double tau = 5; // fs, width of the pulse
 double getMax(double*, int);
 /*** Computational parameters ***/
-double dx = 20.0; // nm
+double dx = 15.0; // nm
 int Nx = 2500;
 
 
@@ -197,9 +197,14 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
-    dataTR.resize(2);
-    dataTR[0].resize(Nw,0);
-    dataTR[1].resize(Nw,0);
+    dataFourR.resize(2);
+    dataFourR[0].resize(Nw,0);
+    dataFourR[1].resize(Nw,0);
+    for(int i=0;i<Nw;i++)
+    {
+        dataFourR[0][i]=wmin+i*(wmax-wmin)/Nw;
+        dataFourR[1][i]=0;
+    }
 
     double epsImK=4*pi*2*w0;
     for(int i=0;i<Nw;i++)
@@ -383,15 +388,15 @@ void MainWindow::loop()
         time_i+=1;
         getEHL(EL,HL,time_i,i1,ix0,  dx,  dt,  speed,  tau,  w0);
 //        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
-//        save_mas(Nx, Bz2, Bz);
-        update_Bz(Nx, Hz, Ey, EL, ER, i1, i2, xi);
-//        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
-//        save_mas(Nx, Dy2,Dy);
-        update_Dy(Nx, Ey, Hz, HL, HR,i1,i2, xi);
-//        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
+        save_mas(Nx, Bz2, Bz);
+        update_Bz(Nx, Bz, Ey, EL, ER, i1, i2, xi);
+        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
+        save_mas(Nx, Dy2,Dy);
+        update_Dy(Nx, Dy, Hz, HL, HR,i1,i2, xi);
+        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
-//        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
+        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
 //        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)

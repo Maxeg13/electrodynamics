@@ -30,12 +30,12 @@ using namespace std;
 bool fourb1, fourb2;
 int iii=1;
 char *tag="v1"; // used to label output files
-double eslab = 1.; // permittivity of the slab
+double eslab = 4.; // permittivity of the slab
 double lambda0 = 600; // nm
 double tau = 5; // fs, width of the pulse
 double getMax(double*, int);
 /*** Computational parameters ***/
-double dx = 20.0; // nm
+double dx = 15.0; // nm
 int Nx = 2500;
 
 
@@ -71,7 +71,7 @@ double *Dy = fields+2*Nx;
 double *Dy2=new double[Nx];
 double *eps = new double[Nx];
 double *eta=new double[Nx];
-double HL, HR, EL, ER;
+double HL, HR=0, EL, ER=0;
 
 
 double wmin = 0.8*w0; // rad/fs
@@ -383,12 +383,12 @@ void MainWindow::loop()
         time_i+=1;
         getEHL(EL,HL,time_i,i1,ix0,  dx,  dt,  speed,  tau,  w0);
 //        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
-//        save_mas(Nx, Bz2, Bz);
-        update_Bz(Nx, Hz, Ey, EL, ER, i1, i2, xi);
-//        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
-//        save_mas(Nx, Dy2,Dy);
-        update_Dy(Nx, Ey, Hz, HL, HR,i1,i2, xi);
-//        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
+        save_mas(Nx, Bz2, Bz);
+        update_Bz(Nx, Bz, Ey, EL, ER, i1, i2, xi);
+        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
+        save_mas(Nx, Dy2,Dy);
+        update_Dy(Nx, Dy, Hz, HL, HR,i1,i2, xi);
+        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
 //        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
