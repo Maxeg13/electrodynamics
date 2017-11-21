@@ -44,9 +44,9 @@ int ix0 = 600;//1600
 int Nslab = 200; // width of the slab
 int width = 100;
 
-int si1 = 1100; // start of the slab
-int si2 = si1+100; // end of the slab
-int i1=1000;
+int si1 = 1200; // start of the slab
+int si2 = si1+10; // end of the slab
+int i1=si1-100;
 int i2=si2+300;
 
 int fi1 = 5000; //
@@ -106,18 +106,18 @@ void MainWindow::changeDist()
         Bz[i]=0;
         Bz2[i]=0;
         Hz[i]=0;
-//        eps[i]=0;
+        //        eps[i]=0;
     }
     create_slab(Nx, eps, eta, Nx-slider_width->value(), si2, eslab);
-//    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
-        update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
+    //    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+    update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
 
-        for(int i=0;i<Nx;i++)
-        {
-            dataEps[0][i]=dx*(i);
-            dataEps[1][i]=abs(eps[i])*1;
-        }
-        epsCurve->signalDrawing();
+    for(int i=0;i<Nx;i++)
+    {
+        dataEps[0][i]=dx*(i);
+        dataEps[1][i]=abs(eps[i])*1;
+    }
+    epsCurve->signalDrawing();
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -139,15 +139,15 @@ MainWindow::MainWindow(QWidget *parent) :
         Bz[i]=0;
         Bz2[i]=0;
         Hz[i]=0;
-//        eps[i]=0;
+        //        eps[i]=0;
     }
 
 
 
     create_slab(Nx, eps, eta, si1, si2, eslab);
 
-//    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
-//    save_Dy2(Nx,Dy2,Dy);
+    //    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
+    //    save_Dy2(Nx,Dy2,Dy);
     update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
     //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
 
@@ -157,7 +157,7 @@ MainWindow::MainWindow(QWidget *parent) :
     slider_width->setRange(1,500);
     slider_width->setValue(100);
     slider_width->setOrientation(Qt::Horizontal);
-//    changeDist();
+    //    changeDist();
     connect(slider_width,SIGNAL(sliderReleased()),this,SLOT(changeDist()));
 
     timer=new QTimer(this);
@@ -173,7 +173,7 @@ MainWindow::MainWindow(QWidget *parent) :
         dataE[1][i]=Ey[i];
     }
 
-    dataR.resize(2);
+
 
 
     dataFourR.resize(2);
@@ -197,24 +197,33 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
 
+    //    dataR.resize(2);
+    //    dataR[0].resize(Nw,0);
+    //    dataR[1].resize(Nw,0);
+    //    for(int i=0;i<Nw;i++)
+    //    {
+    //        dataR[0][i]=wmin+i*(wmax-wmin)/Nw;
+    //        dataR[1][i]=0;
+    //    }
+
+
     dataTR.resize(2);
     dataTR[0].resize(Nw,0);
     dataTR[1].resize(Nw,0);
-
     double epsImK=4*pi*2*w0;
     for(int i=0;i<Nw;i++)
     {
         dcomplex dc(1,1);
-//        dc=2.*dc;
-
+        double r1=(1-2)/3.;
 
         dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
-        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
-                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
-//        dataTR[1][i]=1;
-//        sqrt(dcomplex(0,1));
-//        sqrt((double)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
+
+        dcomplex e2=exp(dcomplex(0,1)*(2.*dataTR[0][i]*150)*2./(speed));
+//        dataTR[1][i]=abs(r1*(e2-(double)1.)/(e2-r1*r1));
+        dataTR[1][i]=abs(8/9.*((double)1/(e2-r1*r1)));
+
     }
+
 
     dataH.resize(2);
     for(int i=0;i<2;i++)
@@ -247,24 +256,24 @@ MainWindow::MainWindow(QWidget *parent) :
     d_plot[1] = new QwtPlot(this);
     drawingInit(d_plot[1],QString("Fourier koefs"));
     d_plot[1]->setAxisScale(QwtPlot::yLeft,0,1);
-    d_plot[1]->setAxisScale(QwtPlot::xBottom,0,80);
+    d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
     d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
-    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "width, number of nodes");
+    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "cyrcle freq, rads/fs");
     QwtPlotGrid *grid = new QwtPlotGrid(); //
 
-        grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
-        grid->attach( d_plot[1] ); // добавить сетку к полю графика
+    grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
+    grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
 
     elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
     magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
     epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
     fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
-    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
-     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
-     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
+    //    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
+    fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
+    //     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
 
-//    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
+    //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
     LE=new QLineEdit("10");
     QGridLayout* MW=new QGridLayout();
@@ -283,6 +292,7 @@ MainWindow::MainWindow(QWidget *parent) :
     elCurve[0]->signalDrawing();
     magCurve[0]->signalDrawing();
     epsCurve->signalDrawing();
+    fourThCurve->signalDrawing();
 
 }
 
@@ -326,7 +336,7 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     //    d_plot->setAxisScale(1,-500,500,200);
     d_plot->setTitle( *qwtt ); // заголовок
     d_plot->setCanvasBackground( Qt::white ); // цвет фона
-//    d_plot->set
+    //    d_plot->set
 
 
 
@@ -367,8 +377,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if(event->text()=="a")
     {
-        dataR[0].push_back(slider_width->value());
-        dataR[1].push_back(getMax(Ey,Nx));
+        //        dataR[0].push_back(slider_width->value());
+        //        dataR[1].push_back(getMax(Ey,Nx));
     }
 
 }
@@ -382,7 +392,7 @@ void MainWindow::loop()
     {
         time_i+=1;
         getEHL(EL,HL,time_i,i1,ix0,  dx,  dt,  speed,  tau,  w0);
-//        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
+        //        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
         save_mas(Nx, Bz2, Bz);
         update_Bz(Nx, Bz, Ey, EL, ER, i1, i2, xi);
         update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
@@ -391,8 +401,8 @@ void MainWindow::loop()
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
-//        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
-//        cout<<abs(ft1[40]);
+        rfourier2(wmin, wmax, Nw, ft1, ft2, EL, Ey[i2+10], dt, time, fourb1, fourb2 );
+        //        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)
         {
@@ -400,24 +410,24 @@ void MainWindow::loop()
             dataH[1][i]=Hz[i];
         }
 
-//        for(int i=0;i<Nw;i++)
-//        {
-//            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
+        for(int i=0;i<Nw;i++)
+        {
+            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
 
-//        dataFourI[1][i]=abs(ft1[i]);
-////        dataFourR[1][i]=abs(ft2[i]);
-//        }
+            //        dataFourI[1][i]=abs(ft1[i]);
+            //        dataFourR[1][i]=abs(ft2[i]);
+        }
     }
 
     elCurve[0]->signalDrawing();
-//    elCurve[1]->signalDrawing();
+    //    elCurve[1]->signalDrawing();
     magCurve[0]->signalDrawing();
-    etaConstCurve[0]->signalDrawing();
+    //    etaConstCurve[0]->signalDrawing();
 
 
-//    fourRCurve->signalDrawing();
-//    fourICurve->signalDrawing();
-//    fourThCurve->signalDrawing();
+    fourRCurve->signalDrawing();
+    //    fourICurve->signalDrawing();
+    fourThCurve->signalDrawing();
 
     QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
     qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
@@ -429,9 +439,9 @@ void MainWindow::loop()
 double getMax(double* x, int Nx)
 {
     double max=0;
-for(int i=0;i<Nx;i++)
-    if(max<x[i]) max=x[i];
-return max;
+    for(int i=0;i<Nx;i++)
+        if(max<x[i]) max=x[i];
+    return max;
 }
 
 MainWindow::~MainWindow()
