@@ -1,63 +1,25 @@
 #include "fdtd_1d_maxwell.h"
-void update_Bz(int Nx, double *Bz, const double *Ey, const double& EL, const double& ER, int i1,int i2, double xi){
+void update_B(int Nx, double **Bx, double **By,  double **Ez, double xi){
+static int i;
+static int j;
+    for( i=0; i<Nx-1; i++)
+        for( j=0; j<Nx-2;j++)
+            Bx[i][j] +=xi*(Ez[i][j+1]-Ez[i][j]);
 
-    for(int i=0; i<Nx-1; i++){
-//        switch(i)
-//        {
-//        case (i1-1):
-        if(i==(i1-1))
-            Bz[i] +=-xi*(Ey[i+1]-Ey[i]-EL);
-//        case i2:
-        else if(i==i2)
-            Bz[i] +=-xi*(Ey[i+1]-Ey[i]+ER);
-//        default:
-        else
-            Bz[i] +=-xi*(Ey[i+1]-Ey[i]);
+    for( i=0; i<Nx-2; i++)
+        for( j=0; j<Nx-1;j++)
+            Bx[i][j] +=xi*(Ez[i][j]-Ez[i+1][j]);
 
-    }
-    int i=Nx-1; // last point
-    Bz[i] +=-xi*(0.0 - Ey[i]);
+//    int i=Nx-1; // last point
+//    Bz[i] +=-xi*(0.0 - Ey[i]);
 
-    //    Bz[0]=0;
-
-
-    //        for(int i=1; i<Nx-1; i++){
-    //            Bz[i] +=-xi*(Ey[i+1]-Ey[i]);
-    //        }
-    //        int i=Nx-1; // last point
-    //    Bz[i]=0;
-
-    //    Bz[Nx-1]=Bz[Nx-2];
-    //    for(int i=0; i<Nx-1; i++){
-    //        Bz[i] +=-xi*(Ey[i+1]-Ey[i]);
-    //    }
-    //    int i=Nx-1; // last point
-    ////    Bz[i] +=-xi*(0.0 - Ey[i]);
 }
 
 /******************************************************************************/
-void update_Dy(int Nx, double *Dy,const double *Hz, const double& HL,const double& HR, int i1, int i2, double xi){
-
-    for(int i=1; i<Nx; i++){
-//        switch(i)
-//        {
-//        case i1:
-        if(i==i1)
-            Dy[i] +=-xi*(Hz[i]-Hz[i-1]-HL);
-//        case (i2+1):
-        else if(i==(i2+1))
-            Dy[i] +=-xi*(Hz[i]-Hz[i-1]+HR);
-//        default:
-        else
-            Dy[i] +=-xi*(Hz[i]-Hz[i-1]);
-
-    }
-    //    Dy[Nx-1]=0;
-
-
-    //    Dy[Nx-1]=Dy[Nx-2];
-    //    for(int i=1; i<(Nx-1); i++){
-    //        Dy[i] +=-xi*(Hz[i]-Hz[i-1]);
-    //    }
-
+void update_Dz(int Nx, double **Dz,  double **Hx,  double **Hy, double source, double xi){
+    static int i;
+    static int j;
+    for(i=1; i<Nx-2; i++)
+        for( j=0; j<Nx-2;j++)
+            Dz[i][j] +=-xi*(Hx[i+1][j]+Hy[i][j]-Hx[i][j]-Hy[i][j+1])+source;
 }
