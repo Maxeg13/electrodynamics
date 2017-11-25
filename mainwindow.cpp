@@ -33,10 +33,10 @@ char *tag="v1"; // used to label output files
 float eslab = 1.; // permittivity of the slab
 float lambda0 = 600; // nm
 float tau = 5; // fs, width of the pulse
-float getMax(float*, int);
+float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 500;
+int Nx = 100;
 
 
 int ix0 = 600;//1600
@@ -98,17 +98,22 @@ vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR
 
 QwtPlot* d_plot[n_plot];
 
-void alloc(float **x,int n)
+void alloc1(float **&x,int n)
 {
     x=new float*[n];
     for(int i=0;i<n;i++)
         x[i]=new float[n];
 
-    for(int i=0;i<Nx;i++)
-        for(int j=0;j<Nx;j++)
+    for(int i=0;i<n;i++)
+        for(int j=0;j<n;j++)
             x[i][j]=0;
 }
 
+void test(int* x)
+{
+    x=new int;
+    *x=42;
+}
 void MainWindow::changeDist()
 {
     //    qDebug()<<slider_width->value();
@@ -138,13 +143,25 @@ void MainWindow::changeDist()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    alloc(Dz,Nx);
-    alloc(Ez,Nx);
-    alloc(Hx,Nx);
-    alloc(Bx,Nx);
-    alloc(Hy,Nx);
-    alloc(By,Nx);
+//    int n=Nx;
+//    Ez=new float*[n];
+//    for(int i=0;i<n;i++)
+//        Ez[i]=new float[n];
 
+//    for(int i=0;i<n;i++)
+//        for(int j=0;j<n;j++)
+//            Ez[i][j]=0;
+//int* c1;
+//    test(c1);
+//    qDebug()<<*c1;
+
+    alloc1(Dz,Nx);
+    alloc1(Ez,Nx);
+    alloc1(Hx,Nx);
+    alloc1(Bx,Nx);
+    alloc1(Hy,Nx);
+    alloc1(By,Nx);
+qDebug()<<"Ez="<<Ez[5][5];
 
     dcomplex c(1,1);
     cout<<abs(c);
@@ -182,9 +199,9 @@ MainWindow::MainWindow(QWidget *parent) :
         //        dc=2.*dc;
 
 
-//        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
-//        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
-//                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
+        //        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
+        //        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
+        //                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
         //        dataTR[1][i]=1;
         //        sqrt(dcomplex(0,1));
         //        sqrt((float)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
@@ -230,7 +247,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
-    LE=new QLineEdit("10");
+    LE=new QLineEdit("1");
     QGridLayout* MW=new QGridLayout();
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(MW);
@@ -247,7 +264,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //    elCurve[0]->signalDrawing();
     //    magCurve[0]->signalDrawing();
     //    epsCurve->signalDrawing();
-
+    connect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 }
 
 void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
@@ -339,26 +356,30 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void  MainWindow::paintEvent(QPaintEvent *e)
 {
-    static float width=1;
-int i=0;
-int j=0;
+    static float width=10;
+    int i=0;
+    int j=0;
 
     QPainter* painter=new QPainter(this);
     painter->setRenderHint(QPainter::Antialiasing, 1);
     //    QPen pen(Qt::black, 8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
 
     //    painter->setPen(pen);
-QBrush brush;
+    QPen pen;
+    QRect rect;
+    float max1=getMax(Ez,Nx);
     for (i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
             //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
-            brush.setColor(QColor(0,0,200));
-            painter->setBrush(brush);
-            painter->drawRect(QRect(i*width,j*width,width,width));
-
+            pen.setColor(QColor(0,0,fabs(Ez[i][j])*255/(0.0001+max1)));
+            painter->setPen(pen);
+            //            painter->setBrush(brush);
+            //            painter->drawRect(rect=QRect(i*width,j*width,width,width));
+            //            painter->fillRect(rect,brush);
+            painter->drawPoint(QPoint(i,j));
         }
-    //        painter->scale(0.2,0.2);
+            painter->scale(4,4);
     delete painter;
 
 }
@@ -380,7 +401,7 @@ void MainWindow::loop()
         update_B(Nx, Hx, Hy, Ez, xi);
         //        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
         //        save_mas(Nx, Dy2,Dy);
-        update_Dz(Nx, Ez, Hx, Hy, 0, xi);
+        update_Dz(Nx, Ez, Hx, Hy, 0.1, xi);
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         float time=dt*(time_i+1); // for Ey
@@ -408,11 +429,15 @@ void MainWindow::loop()
     }
 }
 
-float getMax(float* x, int Nx)
+float getMax(float **x, int Nx)
 {
     float max=0;
-    for(int i=0;i<Nx;i++)
-        if(max<x[i]) max=x[i];
+    int i;
+    int j;
+    for(i=0;i<Nx;i++)
+        for(j=0;j<Nx;j++)
+        if(max<fabs(x[i][j])) max=x[i][j];
+
     return max;
 }
 

@@ -19,7 +19,8 @@ static int j;
 void update_Dz(int Nx, float **Dz,  float **Hx,  float **Hy, float source, float xi){
     static int i;
     static int j;
+    int Mx=Nx/2;
     for(i=1; i<Nx-2; i++)
         for( j=0; j<Nx-2;j++)
-            Dz[i][j] +=-xi*(Hx[i+1][j]+Hy[i][j]-Hx[i][j]-Hy[i][j+1])+source;
+            Dz[i][j] +=-xi*(Hx[i+1][j]+Hy[i][j]-Hx[i][j]-Hy[i][j+1])+source*(((i==Mx)&(j==Mx))?1:0);
 }
