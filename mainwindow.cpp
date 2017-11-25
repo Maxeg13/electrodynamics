@@ -36,7 +36,7 @@ double tau = 5; // fs, width of the pulse
 double getMax(double*, int);
 /*** Computational parameters ***/
 double dx = 20.0; // nm
-int Nx = 2500;
+int Nx = 1200;
 
 
 int ix0 = 600;//1600
@@ -62,16 +62,19 @@ double dt = xi*dx/speed; // in fs
 
 
 /*** arrays for the fields ***/
-double *fields = new double[3*Nx];
-double *Hz = fields+0*Nx;
-double *Bz =new double[Nx];
-double *Bz2 =new double[Nx];
-double *Ey = fields+1*Nx;
-double *Dy = fields+2*Nx;
-double *Dy2=new double[Nx];
-double *eps = new double[Nx];
-double *eta=new double[Nx];
-double HL, HR, EL, ER;
+
+double **Hz;
+double **Bz;
+//double *Bz2 =new double[Nx];
+double **Hy;
+double **By;
+
+double **Ez;
+double **Dz;
+//double *Dy2=new double[Nx];
+//double *eps;
+//double *eta;
+double HL, HR=0, EL, ER=0;
 
 
 double wmin = 0.8*w0; // rad/fs
@@ -95,10 +98,22 @@ vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR
 
 QwtPlot* d_plot[n_plot];
 
+void alloc(double **x,int n)
+{
+    x=new double*[n];
+    for(int i=0;i<n;i++)
+        x[i]=new double[n];
+
+    for(int i=0;i<Nx;i++)
+        for(int j=0;j<Nx;j++)
+            x[i][j]=0;
+}
+
 void MainWindow::changeDist()
 {
     qDebug()<<slider_width->value();
     for(int i=0;i<Nx;i++)
+
     {
         Ey[i]=0;
         Dy[i]=0;
@@ -123,6 +138,14 @@ void MainWindow::changeDist()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    alloc(Dz,Nx);
+    alloc(Ez,Nx);
+    alloc(Hx,Nx);
+    alloc(Bx,Nx);
+    alloc(Hy,Nx);
+    alloc(By,Nx);
+
+
     dcomplex c(1,1);
     cout<<abs(c);
     zset_mem(2*Nw, ftall, 0.0+dcomplex(0,1)*0.0);
