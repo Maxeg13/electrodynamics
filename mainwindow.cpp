@@ -30,13 +30,13 @@ using namespace std;
 bool fourb1, fourb2;
 int iii=1;
 char *tag="v1"; // used to label output files
-double eslab = 1.; // permittivity of the slab
-double lambda0 = 600; // nm
-double tau = 5; // fs, width of the pulse
-double getMax(double*, int);
+float eslab = 1.; // permittivity of the slab
+float lambda0 = 600; // nm
+float tau = 5; // fs, width of the pulse
+float getMax(float*, int);
 /*** Computational parameters ***/
-double dx = 20.0; // nm
-int Nx = 1200;
+float dx = 20.0; // nm
+int Nx = 500;
 
 
 int ix0 = 600;//1600
@@ -52,33 +52,33 @@ int i2=si2+300;
 int fi1 = 5000; //
 int fi2 = 2500; //
 
-double xi = 1;
+float xi = .5;
 int No = 200; // defines the output rate
 
 /*** start exe
 ution ***/
-double w0 = 2*pi*speed/lambda0; // rad/fs
-double dt = xi*dx/speed; // in fs
+float w0 = 2*pi*speed/lambda0; // rad/fs
+float dt = xi*dx/speed; // in fs
 
 
 /*** arrays for the fields ***/
 
-double **Hx;
-double **Bx;
-//double *Bz2 =new double[Nx];
-double **Hy;
-double **By;
+float **Hx;
+float **Bx;
+//float *Bz2 =new float[Nx];
+float **Hy;
+float **By;
 
-double **Ez;
-double **Dz;
-//double *Dy2=new double[Nx];
-//double *eps;
-//double *eta;
-double HL, HR=0, EL, ER=0;
+float **Ez;
+float **Dz;
+//float *Dy2=new float[Nx];
+//float *eps;
+//float *eta;
+float HL, HR=0, EL, ER=0;
 
 
-double wmin = 0.8*w0; // rad/fs
-double wmax = 1.2*w0; // rad/fs
+float wmin = 0.8*w0; // rad/fs
+float wmax = 1.2*w0; // rad/fs
 int Nw=200;
 
 dcomplex *ftall=new dcomplex[3*Nw];
@@ -98,11 +98,11 @@ vector<vector<float>> dataE, dataH, dataFourR, dataFourI, dataEps, dataTR, dataR
 
 QwtPlot* d_plot[n_plot];
 
-void alloc(double **x,int n)
+void alloc(float **x,int n)
 {
-    x=new double*[n];
+    x=new float*[n];
     for(int i=0;i<n;i++)
-        x[i]=new double[n];
+        x[i]=new float[n];
 
     for(int i=0;i<Nx;i++)
         for(int j=0;j<Nx;j++)
@@ -175,58 +175,58 @@ MainWindow::MainWindow(QWidget *parent) :
     dataTR[0].resize(Nw,0);
     dataTR[1].resize(Nw,0);
 
-    double epsImK=4*pi*2*w0;
+    float epsImK=4*pi*2*w0;
     for(int i=0;i<Nw;i++)
     {
         dcomplex dc(1,1);
         //        dc=2.*dc;
 
 
-        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
-        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
-                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
+//        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
+//        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
+//                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
         //        dataTR[1][i]=1;
         //        sqrt(dcomplex(0,1));
-        //        sqrt((double)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
+        //        sqrt((float)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
     }
 
-//    dataEps.resize(2);
-//    for(int i=0;i<2;i++)
-//        dataEps[i].resize(Nx,0);
-//    for(int i=0;i<Nx;i++)
-//    {
-//        dataEps[0][i]=dx*(i);
-//        dataEps[1][i]=abs(eps[i])*1;
-//    }
+    //    dataEps.resize(2);
+    //    for(int i=0;i<2;i++)
+    //        dataEps[i].resize(Nx,0);
+    //    for(int i=0;i<Nx;i++)
+    //    {
+    //        dataEps[0][i]=dx*(i);
+    //        dataEps[1][i]=abs(eps[i])*1;
+    //    }
 
-//    float yBond=1.5;
+    //    float yBond=1.5;
 
-//    d_plot[0] = new QwtPlot(this);
-//    drawingInit(d_plot[0],QString("ED show"));
-//    d_plot[0]->setAxisScale(QwtPlot::yLeft,-yBond,yBond);
-//    d_plot[0]->setAxisScale(QwtPlot::xBottom,0,Nx*dx);
-//    d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey/E, Hz/H");
-//    d_plot[0]->setAxisTitle(QwtPlot::xBottom, "dist, nm");
+    //    d_plot[0] = new QwtPlot(this);
+    //    drawingInit(d_plot[0],QString("ED show"));
+    //    d_plot[0]->setAxisScale(QwtPlot::yLeft,-yBond,yBond);
+    //    d_plot[0]->setAxisScale(QwtPlot::xBottom,0,Nx*dx);
+    //    d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey/E, Hz/H");
+    //    d_plot[0]->setAxisTitle(QwtPlot::xBottom, "dist, nm");
 
-//    d_plot[1] = new QwtPlot(this);
-//    drawingInit(d_plot[1],QString("Fourier koefs"));
-//    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,1);
-//    d_plot[1]->setAxisScale(QwtPlot::xBottom,0,80);
-//    d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
-//    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "width, number of nodes");
-//    QwtPlotGrid *grid = new QwtPlotGrid(); //
+    //    d_plot[1] = new QwtPlot(this);
+    //    drawingInit(d_plot[1],QString("Fourier koefs"));
+    //    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,1);
+    //    d_plot[1]->setAxisScale(QwtPlot::xBottom,0,80);
+    //    d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
+    //    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "width, number of nodes");
+    //    QwtPlotGrid *grid = new QwtPlotGrid(); //
 
-//    grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
-//    grid->attach( d_plot[1] ); // добавить сетку к полю графика
+    //    grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
+    //    grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
 
-//    elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
-//    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
-//    epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
-//    fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
-//    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
-//    fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
-//    etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
+    //    elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
+    //    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
+    //    epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
+    //    fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
+    //    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
+    //    fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
+    //    etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
 
     //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
 
@@ -235,8 +235,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setLayout(MW);
 
-//    MW->addWidget(d_plot[0],0,0,1,2);
-//    MW->addWidget(d_plot[1],1,0,1,2);
+    //    MW->addWidget(d_plot[0],0,0,1,2);
+    //    MW->addWidget(d_plot[1],1,0,1,2);
     MW->addWidget(slider_width,2,0);
     MW->addWidget(LE,2,1);
 
@@ -331,14 +331,43 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else if(event->text()=="a")
     {
-//        dataR[0].push_back(slider_width->value());
-//        dataR[1].push_back(getMax(Ey,Nx));
+        //        dataR[0].push_back(slider_width->value());
+        //        dataR[1].push_back(getMax(Ey,Nx));
     }
+
+}
+
+void  MainWindow::paintEvent(QPaintEvent *e)
+{
+    static float width=1;
+int i=0;
+int j=0;
+
+    QPainter* painter=new QPainter(this);
+    painter->setRenderHint(QPainter::Antialiasing, 1);
+    //    QPen pen(Qt::black, 8, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+
+    //    painter->setPen(pen);
+QBrush brush;
+    for (i=0;i<Nx;i++)
+        for(j=0;j<Nx;j++)
+        {
+            //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
+            brush.setColor(QColor(0,0,200));
+            painter->setBrush(brush);
+            painter->drawRect(QRect(i*width,j*width,width,width));
+
+        }
+    //        painter->scale(0.2,0.2);
+    delete painter;
 
 }
 
 void MainWindow::loop()
 {
+    int i;
+    int j;
+    update();
 
 
     static int time_i=0;
@@ -354,7 +383,7 @@ void MainWindow::loop()
         update_Dz(Nx, Ez, Hx, Hy, 0, xi);
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
-        double time=dt*(time_i+1); // for Ey
+        float time=dt*(time_i+1); // for Ey
         //        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
         //        cout<<abs(ft1[40]);
 
@@ -379,9 +408,9 @@ void MainWindow::loop()
     }
 }
 
-double getMax(double* x, int Nx)
+float getMax(float* x, int Nx)
 {
-    double max=0;
+    float max=0;
     for(int i=0;i<Nx;i++)
         if(max<x[i]) max=x[i];
     return max;

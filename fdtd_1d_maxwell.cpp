@@ -1,5 +1,5 @@
 #include "fdtd_1d_maxwell.h"
-void update_B(int Nx, double **Bx, double **By,  double **Ez, double xi){
+void update_B(int Nx, float **Bx, float **By,  float **Ez, float xi){
 static int i;
 static int j;
     for( i=0; i<Nx-1; i++)
@@ -16,7 +16,7 @@ static int j;
 }
 
 /******************************************************************************/
-void update_Dz(int Nx, double **Dz,  double **Hx,  double **Hy, double source, double xi){
+void update_Dz(int Nx, float **Dz,  float **Hx,  float **Hy, float source, float xi){
     static int i;
     static int j;
     for(i=1; i<Nx-2; i++)

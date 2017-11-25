@@ -27,6 +27,8 @@ public slots:
     void changeDist();
 //    void mousePressEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *event);
+protected:
+    void paintEvent(QPaintEvent *e);
 };
 
 #endif // MAINWINDOW_H
