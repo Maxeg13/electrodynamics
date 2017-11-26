@@ -36,7 +36,7 @@ float tau = 5; // fs, width of the pulse
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 100;
+int Nx = 150;
 
 
 int ix0 = 600;//1600
@@ -143,17 +143,17 @@ void MainWindow::changeDist()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-//    int n=Nx;
-//    Ez=new float*[n];
-//    for(int i=0;i<n;i++)
-//        Ez[i]=new float[n];
+    //    int n=Nx;
+    //    Ez=new float*[n];
+    //    for(int i=0;i<n;i++)
+    //        Ez[i]=new float[n];
 
-//    for(int i=0;i<n;i++)
-//        for(int j=0;j<n;j++)
-//            Ez[i][j]=0;
-//int* c1;
-//    test(c1);
-//    qDebug()<<*c1;
+    //    for(int i=0;i<n;i++)
+    //        for(int j=0;j<n;j++)
+    //            Ez[i][j]=0;
+    //int* c1;
+    //    test(c1);
+    //    qDebug()<<*c1;
 
     alloc1(Dz,Nx);
     alloc1(Ez,Nx);
@@ -161,7 +161,11 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(Bx,Nx);
     alloc1(Hy,Nx);
     alloc1(By,Nx);
-qDebug()<<"Ez="<<Ez[5][5];
+//    qDebug()<<"Ez="<<Ez[5][5];
+    int* jj;
+    cout<<jj<<std::endl;
+    jj=new int[100];
+    cout<<jj<<std::endl;
 
     dcomplex c(1,1);
     cout<<abs(c);
@@ -254,8 +258,8 @@ qDebug()<<"Ez="<<Ez[5][5];
 
     //    MW->addWidget(d_plot[0],0,0,1,2);
     //    MW->addWidget(d_plot[1],1,0,1,2);
-    MW->addWidget(slider_width,2,0);
-    MW->addWidget(LE,2,1);
+    MW->addWidget(slider_width,2,0,1,1,Qt::AlignBottom);
+    MW->addWidget(LE,2,1,1,1,Qt::AlignBottom);
 
     //    MW->addWidget(d_plot,2,1,2,4);
     setCentralWidget(centralWidget);
@@ -356,7 +360,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void  MainWindow::paintEvent(QPaintEvent *e)
 {
-    static float width=10;
+    float width=2;
     int i=0;
     int j=0;
 
@@ -366,20 +370,44 @@ void  MainWindow::paintEvent(QPaintEvent *e)
 
     //    painter->setPen(pen);
     QPen pen;
-    QRect rect;
+    QBrush brush;
+    QRectF rect;
+    QColor color;
     float max1=getMax(Ez,Nx);
     for (i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
             //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
-            pen.setColor(QColor(0,0,fabs(Ez[i][j])*255/(0.0001+max1)));
+//            brush.setColor(QColor(0,0,fabs(Ez[i][j])*240/(0.00001+fabs(max1))));
+//            brush.setColor(QColor(0,0,250));
+            if(Ez[i][j]>0)
+            {
+                color.setRed(0);
+                color.setBlue(fabs(Ez[i][j])*250./(0.00001+(max1)));
+            }
+            else
+            {
+                color.setBlue(0);
+                color.setRed(fabs(Ez[i][j])*250./(0.00001+(max1)));
+            }
+
+            pen.setColor(color);
+
+            //            painter->setPen(pen);
+            QPainterPath path;
+
+            //                        painter->setBrush(brush);
+            //                        painter->drawRect(rect=QRect(i*width,j*width,width,width));
+            rect=QRect(i*width,j*width,width,width);
+                    //                                painter->drawRect();
             painter->setPen(pen);
-            //            painter->setBrush(brush);
-            //            painter->drawRect(rect=QRect(i*width,j*width,width,width));
-            //            painter->fillRect(rect,brush);
-            painter->drawPoint(QPoint(i,j));
+            path.addRect(rect);
+            painter->drawPath(path);
+            painter->fillPath(path,color);
+
+            //            painter->drawPoint(QPoint(i,j));
         }
-            painter->scale(4,4);
+    //            painter->scale(4,4);
     delete painter;
 
 }
@@ -401,7 +429,7 @@ void MainWindow::loop()
         update_B(Nx, Hx, Hy, Ez, xi);
         //        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
         //        save_mas(Nx, Dy2,Dy);
-        update_Dz(Nx, Ez, Hx, Hy, 0.1, xi);
+        update_Dz(Nx, Ez, Hx, Hy, sin(time_i/4.), xi);
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         float time=dt*(time_i+1); // for Ey
@@ -436,7 +464,7 @@ float getMax(float **x, int Nx)
     int j;
     for(i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
-        if(max<fabs(x[i][j])) max=x[i][j];
+            if(max<fabs(x[i][j])) max=fabs(x[i][j]);
 
     return max;
 }
