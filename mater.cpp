@@ -3,13 +3,33 @@
 /******************************************************************************/
 extern float dt;
 extern float w0;
+float eta0=0.4;
 
-void create_slab(int Nx, float **eps){
-    for(int i=0; i<Nx; i++){
+void create_etax(int Nx, int width, float **eta){
+
+    for(int i=0; i<Nx; i++)
         for(int j=0;j<Nx;j++)
-            eps[i][j] = 0;
-    }
+        {
+            if(i>(Nx-width))
+                eta[i][j] = eta0*(i-(Nx-width))*(i-(Nx-width))/width/width;
+            if(i<width)
+                eta[i][j]= eta0*(i-width)*(i-width)/width/width;
+        }
 }
+
+
+void create_etay(int Nx, int width, float **eta){
+
+    for(int i=0; i<Nx; i++)
+        for(int j=0;j<Nx;j++)
+        {
+            if(j>(Nx-width))
+                eta[i][j] = eta0*(j-(Nx-width))*(j-(Nx-width))/width/width;
+            if(j<width)
+                eta[i][j]= eta0*(j-width)*(j-width)/width/width;
+        }
+}
+
 
 void save_mas(int Nx, float** y, float ** x)
 {
@@ -36,12 +56,12 @@ void update_Ez(int Nx, float **Ez, float **Ez2,float **Ez3,
                     /(1+etax[i][j]+
                       etay[i][j]+etax[i][j]*etay[i][j]);
 
-//            Se[i][j]+=Ez2[i][j];//wrong?
-//            Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
-//                                                         etay[i][j])
-//                      -4*etax[i][j]*etay[i][j]*Se[i][j])
-//                    /(1+etax[i][j]+
-//                      etay[i][j]+2*etax[i][j]*etay[i][j]);
+            //            Se[i][j]+=Ez2[i][j];//wrong?
+            //            Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
+            //                                                         etay[i][j])
+            //                      -4*etax[i][j]*etay[i][j]*Se[i][j])
+            //                    /(1+etax[i][j]+
+            //                      etay[i][j]+2*etax[i][j]*etay[i][j]);
 
 
         }

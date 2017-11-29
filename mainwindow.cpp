@@ -36,7 +36,7 @@ float tau = 5; // fs, width of the pulse
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 74;
+int Nx = 110;
 
 
 int ix0 = 600;//1600
@@ -168,7 +168,10 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(By,Nx);
     alloc1(By2,Nx);
 
+    create_etay(Nx,10, etay);
 
+    create_etax(Nx,10, etax);
+//    create_slab(Nx, etay);
     dcomplex c(1,1);
     cout<<abs(c);
 
@@ -341,7 +344,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void  MainWindow::paintEvent(QPaintEvent *e)
 {
-    float width=2;
+    float width=3;
     int i=0;
     int j=0;
 

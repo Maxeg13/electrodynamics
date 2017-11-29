@@ -16,6 +16,8 @@ void update_Hy(int Nx, float **Hy, float** Hy2,
                float **etax,  float** etay);
 
 
-void create_slab(int Nx, float **eps);
+void create_etax(int Nx, int width, float **eta);
+
+void create_etay(int Nx, int width, float **eta);
 
 #endif // MATER_H
