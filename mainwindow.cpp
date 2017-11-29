@@ -36,7 +36,7 @@ float tau = 5; // fs, width of the pulse
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 150;
+int Nx = 74;
 
 
 int ix0 = 600;//1600
@@ -68,9 +68,11 @@ float **Bx;
 //float *Bz2 =new float[Nx];
 float **Hy;
 float **By;
-
+float **etax;
+float **etay;
 float **Ez;
 float **Dz;
+float **Se;
 //float *Dy2=new float[Nx];
 //float *eps;
 //float *eta;
@@ -81,10 +83,6 @@ float wmin = 0.8*w0; // rad/fs
 float wmax = 1.2*w0; // rad/fs
 int Nw=200;
 
-dcomplex *ftall=new dcomplex[3*Nw];
-dcomplex *ft1 = ftall + 0*Nw;
-dcomplex *ft2 = ftall + 1*Nw;
-dcomplex *ftth1=ftall+ 2*Nw;
 
 int T=0; // total steps
 
@@ -154,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //int* c1;
     //    test(c1);
     //    qDebug()<<*c1;
+    alloc1(Se,Nx);
 
     alloc1(Dz,Nx);
     alloc1(Ez,Nx);
