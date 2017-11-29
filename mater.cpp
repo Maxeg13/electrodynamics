@@ -22,8 +22,8 @@ void save_mas(int Nx, float** y, float ** x)
 /******************************************************************************/
 void update_Ez(int Nx, float **Ez, float **Ez2,float **Ez3,
                float **Dz, float** Dz2, float** Se,  float** etax, float** etay){
-    //be carefull, there are the troubles
-    //remember, it's behavior is not like in the maxwell
+    //be carefull, there are some troubles
+    //remember, its behavior is not like in the maxwell
     int i;
     int j;
     for(i=0;i<Nx;i++)
@@ -35,6 +35,15 @@ void update_Ez(int Nx, float **Ez, float **Ez2,float **Ez3,
                       -4*etax[i][j]*etay[i][j]*Se[i][j])
                     /(1+etax[i][j]+
                       etay[i][j]+etax[i][j]*etay[i][j]);
+
+//            Se[i][j]+=Ez2[i][j];//wrong?
+//            Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
+//                                                         etay[i][j])
+//                      -4*etax[i][j]*etay[i][j]*Se[i][j])
+//                    /(1+etax[i][j]+
+//                      etay[i][j]+2*etax[i][j]*etay[i][j]);
+
+
         }
 }
 

@@ -65,7 +65,6 @@ float dt = xi*dx/speed; // in fs
 
 float **Hx;
 float **Bx;
-//float *Bz2 =new float[Nx];
 float **Hy;
 float **By;
 float **etax;
@@ -80,6 +79,7 @@ float **Hy2;
 float ** Dz2;
 float **Bx2;
 float **By2;
+
 //float *Dy2=new float[Nx];
 //float *eps;
 //float *eta;
@@ -148,16 +148,23 @@ void MainWindow::changeDist()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    alloc1(Ez3, Nx);
+    alloc1(etax, Nx);
+    alloc1(etay, Nx);
+
     alloc1(Se,Nx);
     alloc1(Dz,Nx);
     alloc1(Dz2,Nx);
     alloc1(Ez,Nx);
     alloc1(Ez2,Nx);
+    alloc1(Ez3, Nx);
+
     alloc1(Hx,Nx);
+    alloc1(Hx2,Nx);
     alloc1(Bx,Nx);
     alloc1(Bx2,Nx);
+
     alloc1(Hy,Nx);
+    alloc1(Hy2,Nx);
     alloc1(By,Nx);
     alloc1(By2,Nx);
 
@@ -352,8 +359,8 @@ void  MainWindow::paintEvent(QPaintEvent *e)
         for(j=0;j<Nx;j++)
         {
             //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
-//            brush.setColor(QColor(0,0,fabs(Ez[i][j])*240/(0.00001+fabs(max1))));
-//            brush.setColor(QColor(0,0,250));
+            //            brush.setColor(QColor(0,0,fabs(Ez[i][j])*240/(0.00001+fabs(max1))));
+            //            brush.setColor(QColor(0,0,250));
             if(Ez[i][j]>0)
             {
                 color.setRed(0);
@@ -373,7 +380,7 @@ void  MainWindow::paintEvent(QPaintEvent *e)
             //                        painter->setBrush(brush);
             //                        painter->drawRect(rect=QRect(i*width,j*width,width,width));
             rect=QRect(i*width,j*width,width,width);
-                    //                                painter->drawRect();
+            //                                painter->drawRect();
             painter->setPen(pen);
             path.addRect(rect);
             painter->drawPath(path);
@@ -407,13 +414,23 @@ void MainWindow::loop()
         save_mas(Nx, Dz2, Dz);
         save_mas(Nx, By2, By);
         save_mas(Nx, Bx2, Bx);
+        save_mas(Nx, Hx2, Hx);
+        save_mas(Nx, Hy2, Hy);
+
 
         update_B(Nx, Bx, By, Ez, xi);
-        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi);
         update_Hx(Nx, Hx,Hx2,Bx,Bx2,etax,etay);
         update_Hy(Nx, Hy, Hy2,By,By2,etax,etay);
+
+        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi);
         update_Ez(Nx, Ez, Ez2, Ez3, Dz,Dz2,Se, etax, etay);
 
+
+
+
+        //        save_mas(Nx, Hx, Bx);
+        //        save_mas(Nx, Hy, By);
+        //        save_mas(Nx, Ez, Dz);
 
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
