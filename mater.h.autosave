@@ -1,6 +1,6 @@
 #ifndef MATER_H
 #define MATER_H
-void update_Ez(int Nx, float **Ez,
+void update_Ez(int Nx, float **Ez, float ** Ez2,
                const float **Dy, const float** ,float** Se,
                const float **, const float**);
 void save_mas(int Nx, float* Dy2, float * Dy);

@@ -27,33 +27,35 @@ void save_mas(int Nx, float** y, const float ** x)
     int j;
     for ( i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
-        y[i][j]=x[i][j];
+            y[i][j]=x[i][j];
 }
 /******************************************************************************/
-void update_Ez(int Nx, float **Ez,
+void update_Ez(int Nx, float **Ez, float **Ez2,
                const float **Dz, const float** Dz2, float** Se,  const float** etax, const float** etay){
     //be carefull, there are the troubles
+    //remember, it's behavior is not like in the maxwell
     int i;
     int j;
     for(i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
             Se[i][j]+=E[i][j];//wrong?
-            Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez[i][j]*(1-etax[i][j]
-                 -etay[i][j])-4*teax[i][j]*etay[i][j]*Se[i][j])
-                /(1+etax[i][j]+
-                etay[i][j]+2*etax[i][j]*etay[i][j]);
+            Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
+                                                         etay[i][j]-3*etax[i][j]*etay[i][j])
+                      -4*etax[i][j]*etay[i][j]*Se[i][j])
+                    /(1+etax[i][j]+
+                      etay[i][j]+etax[i][j]*etay[i][j]);
         }
 }
 
-void update_H(int Nx, float *Hz,
-              const float *Bz,const float *Bz2,
-              const float *mu,  float* eta){
-    for(int i=0; i<Nx; i++)
-    {
-        float k=1;
-        //        eta[i]*=k;
-        Hz[i]=((mu[i]-k*eta[i])/(mu[i]+k*eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+k*eta[i]);
-        //        eta[i]/=k;
-    }
+void update_Hx(int Nx, float **Hx, float** Hx2,
+               const float **Bz,const float **Bz2,
+               const float **etax,  float** etay){
+    for(i=0; i<Nx; i++)
+        for(j=0;j<Nx;j++)
+        {
+            Hx[i][j]=(1-etay[i][j])/(1+etay[i][j])*Hx2[i][j]
+            +(1+etax[i][j])/(1.*(1+etay[i][j]))*Bx[i][j]
+            -(1-etax[i][j])/(1.*(1+etay[i][j]))*Bx2[i][j];
+        }
 }
