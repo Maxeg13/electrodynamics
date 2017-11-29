@@ -74,6 +74,7 @@ float **Ez;
 float **Dz;
 float **Se;
 float** Ez2;
+float **Ez3;
 float **Hx2;
 float **Hy2;
 float ** Dz2;
@@ -147,24 +148,12 @@ void MainWindow::changeDist()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    //    int n=Nx;
-    //    Ez=new float*[n];
-    //    for(int i=0;i<n;i++)
-    //        Ez[i]=new float[n];
-
-    //    for(int i=0;i<n;i++)
-    //        for(int j=0;j<n;j++)
-    //            Ez[i][j]=0;
-    //int* c1;
-    //    test(c1);
-    //    qDebug()<<*c1;
+    alloc1(Ez3, Nx);
     alloc1(Se,Nx);
-
     alloc1(Dz,Nx);
     alloc1(Dz2,Nx);
     alloc1(Ez,Nx);
     alloc1(Ez2,Nx);
-
     alloc1(Hx,Nx);
     alloc1(Bx,Nx);
     alloc1(Bx2,Nx);
@@ -172,34 +161,17 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(By,Nx);
     alloc1(By2,Nx);
 
-//    qDebug()<<"Ez="<<Ez[5][5];
-    int* jj;
-    cout<<jj<<std::endl;
-    jj=new int[100];
-    cout<<jj<<std::endl;
 
     dcomplex c(1,1);
     cout<<abs(c);
-
-    //    create_slab(Nx, eps, eta, si1, si2, eslab);
-
-    ////    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
-    ////    save_Dy2(Nx,Dy2,Dy);
-    //    update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
-    //    //    create_initial_dist(Nx,Ey,Hz,dx,dt,speed,2250,tau,w0,-1);
-
-
 
     slider_width= new QSlider(this);
     slider_width->setRange(1,500);
     slider_width->setValue(100);
     slider_width->setOrientation(Qt::Horizontal);
-    //    changeDist();
     connect(slider_width,SIGNAL(sliderReleased()),this,SLOT(changeDist()));
-
     timer=new QTimer(this);
     timer->start(42);
-    //    connect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 
 
 
@@ -211,15 +183,6 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nw;i++)
     {
         dcomplex dc(1,1);
-        //        dc=2.*dc;
-
-
-        //        dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
-        //        dataTR[1][i]=abs((sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))-1.)/
-        //                (sqrt(eslab-(epsImK/dataTR[0][i])*dcomplex(0,1))+1.));
-        //        dataTR[1][i]=1;
-        //        sqrt(dcomplex(0,1));
-        //        sqrt((float)eslab-dcomplex(0,1)*(epsImK/dataTR[0][i]))+1;
     }
 
     //    dataEps.resize(2);
@@ -436,11 +399,22 @@ void MainWindow::loop()
         time_i+=1;
         //        getEHL(EL,HL,time_i,i1,ix0,  dx,  dt,  speed,  tau,  w0);
         //        getEH0(ER,HR,time_i,i2,ix0,  dx,  dt,  speed,  tau,  w0);
-        //        save_mas(Nx, Bz2, Bz);
-        update_B(Nx, Hx, Hy, Ez, xi);
-        //        update_Hz(Nx, Hz, Bz, Bz2, eps, eta);
-        //        save_mas(Nx, Dy2,Dy);
-        update_Dz(Nx, Ez, Hx, Hy, sin(time_i/4.), xi);
+
+
+        //fun algorithm
+        save_mas(Nx, Ez3, Ez2);
+        save_mas(Nx, Ez2, Ez);
+        save_mas(Nx, Dz2, Dz);
+        save_mas(Nx, By2, By);
+        save_mas(Nx, Bx2, Bx);
+
+        update_B(Nx, Bx, By, Ez, xi);
+        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi);
+        update_Hx(Nx, Hx,Hx2,Bx,Bx2,etax,etay);
+        update_Hy(Nx, Hy, Hy2,By,By2,etax,etay);
+        update_Ez(Nx, Ez, Ez2, Ez3, Dz,Dz2,Se, etax, etay);
+
+
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         float time=dt*(time_i+1); // for Ey

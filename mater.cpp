@@ -11,7 +11,7 @@ void create_slab(int Nx, float **eps){
     }
 }
 
-void save_mas(int Nx, float** y, const float ** x)
+void save_mas(int Nx, float** y, float ** x)
 {
     int i;
     int j;
@@ -20,8 +20,8 @@ void save_mas(int Nx, float** y, const float ** x)
             y[i][j]=x[i][j];
 }
 /******************************************************************************/
-void update_Ez(int Nx, float **Ez, float **Ez2,
-               const float **Dz, const float** Dz2, float** Se,  const float** etax, const float** etay){
+void update_Ez(int Nx, float **Ez, float **Ez2,float **Ez3,
+               float **Dz, float** Dz2, float** Se,  float** etax, float** etay){
     //be carefull, there are the troubles
     //remember, it's behavior is not like in the maxwell
     int i;
@@ -29,7 +29,7 @@ void update_Ez(int Nx, float **Ez, float **Ez2,
     for(i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
-            Se[i][j]+=Ez[i][j];//wrong?
+            Se[i][j]+=Ez3[i][j];//wrong?
             Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
                                                          etay[i][j]-3*etax[i][j]*etay[i][j])
                       -4*etax[i][j]*etay[i][j]*Se[i][j])
@@ -39,8 +39,8 @@ void update_Ez(int Nx, float **Ez, float **Ez2,
 }
 
 void update_Hx(int Nx, float **Hx, float** Hx2,
-               const float **Bx,const float **Bx2,
-               const float **etax,  float** etay){
+               float **Bx,float **Bx2,
+               float **etax,  float** etay){
     int i, j;
     for(i=0; i<Nx; i++)
         for(j=0;j<Nx;j++)
@@ -52,8 +52,8 @@ void update_Hx(int Nx, float **Hx, float** Hx2,
 }
 
 void update_Hy(int Nx, float **Hy, float** Hy2,
-               const float **By,const float **By2,
-               const float **etax,  float** etay){
+               float **By,float **By2,
+               float **etax,  float** etay){
     int i, j;
     for(i=0; i<Nx; i++)
         for(j=0;j<Nx;j++)
