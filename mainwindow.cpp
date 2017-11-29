@@ -76,6 +76,7 @@ float **Se;
 float** Ez2;
 float **Hx2;
 float **Hy2;
+float ** Dz2;
 float **Bx2;
 float **By2;
 //float *Dy2=new float[Nx];
@@ -160,11 +161,17 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(Se,Nx);
 
     alloc1(Dz,Nx);
+    alloc1(Dz2,Nx);
     alloc1(Ez,Nx);
+    alloc1(Ez2,Nx);
+
     alloc1(Hx,Nx);
     alloc1(Bx,Nx);
+    alloc1(Bx2,Nx);
     alloc1(Hy,Nx);
     alloc1(By,Nx);
+    alloc1(By2,Nx);
+
 //    qDebug()<<"Ez="<<Ez[5][5];
     int* jj;
     cout<<jj<<std::endl;

@@ -4,23 +4,13 @@
 extern float dt;
 extern float w0;
 
-void create_slab(int Nx, float *eps, float *eta, int j1, int j2, float eslab){
+void create_slab(int Nx, float **eps){
     for(int i=0; i<Nx; i++){
-        eps[i] = 1;
-        eta[i]=0;
+        for(int j=0;j<Nx;j++)
+            eps[i][j] = 0;
     }
-    //    for(int i=j1; i<j2+1; i++){
-    //        eps[i] = eslab;
-    //    }
-    for(int i=j1; i<j2; i++){
-        eps[i] = eslab;
-        //        eta[i]=(i-j1)*2*pi*dt*2*w0/(Nx-j1)/20;
-        eta[i]=0;
-    }
-
-
-
 }
+
 void save_mas(int Nx, float** y, const float ** x)
 {
     int i;
@@ -39,7 +29,7 @@ void update_Ez(int Nx, float **Ez, float **Ez2,
     for(i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
-            Se[i][j]+=E[i][j];//wrong?
+            Se[i][j]+=Ez[i][j];//wrong?
             Ez[i][j]=((Dz[i][j]-Dz2[i][j])/1.+Ez2[i][j]*(1-etax[i][j]-
                                                          etay[i][j]-3*etax[i][j]*etay[i][j])
                       -4*etax[i][j]*etay[i][j]*Se[i][j])
@@ -49,13 +39,27 @@ void update_Ez(int Nx, float **Ez, float **Ez2,
 }
 
 void update_Hx(int Nx, float **Hx, float** Hx2,
-               const float **Bz,const float **Bz2,
+               const float **Bx,const float **Bx2,
                const float **etax,  float** etay){
+    int i, j;
     for(i=0; i<Nx; i++)
         for(j=0;j<Nx;j++)
         {
             Hx[i][j]=(1-etay[i][j])/(1+etay[i][j])*Hx2[i][j]
-            +(1+etax[i][j])/(1.*(1+etay[i][j]))*Bx[i][j]
-            -(1-etax[i][j])/(1.*(1+etay[i][j]))*Bx2[i][j];
+                    +(1+etax[i][j])/(1.*(1+etay[i][j]))*Bx[i][j]
+                    -(1-etax[i][j])/(1.*(1+etay[i][j]))*Bx2[i][j];
+        }
+}
+
+void update_Hy(int Nx, float **Hy, float** Hy2,
+               const float **By,const float **By2,
+               const float **etax,  float** etay){
+    int i, j;
+    for(i=0; i<Nx; i++)
+        for(j=0;j<Nx;j++)
+        {
+            Hy[i][j]=(1-etax[i][j])/(1+etax[i][j])*Hy2[i][j]
+                    +(1+etay[i][j])/(1.*(1+etax[i][j]))*By[i][j]
+                    -(1-etay[i][j])/(1.*(1+etax[i][j]))*By2[i][j];
         }
 }
