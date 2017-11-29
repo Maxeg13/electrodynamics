@@ -3,7 +3,7 @@
 /******************************************************************************/
 extern float dt;
 extern float w0;
-float eta0=0.4;
+float eta0=.1;
 
 void create_etax(int Nx, int width, float **eta){
 
@@ -14,6 +14,11 @@ void create_etax(int Nx, int width, float **eta){
                 eta[i][j] = eta0*(i-(Nx-width))*(i-(Nx-width))/width/width;
             if(i<width)
                 eta[i][j]= eta0*(i-width)*(i-width)/width/width;
+
+            if(j>(Nx-width))
+                eta[i][j] = eta0*(j-(Nx-width))*(j-(Nx-width))/width/width;
+            if(j<width)
+                eta[i][j]= eta0*(j-width)*(j-width)/width/width;
         }
 }
 
@@ -27,6 +32,11 @@ void create_etay(int Nx, int width, float **eta){
                 eta[i][j] = eta0*(j-(Nx-width))*(j-(Nx-width))/width/width;
             if(j<width)
                 eta[i][j]= eta0*(j-width)*(j-width)/width/width;
+
+            if(i>(Nx-width))
+                eta[i][j] = eta0*(i-(Nx-width))*(i-(Nx-width))/width/width;
+            if(i<width)
+                eta[i][j]= eta0*(i-width)*(i-width)/width/width;
         }
 }
 

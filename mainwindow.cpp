@@ -438,6 +438,10 @@ void MainWindow::loop()
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         float time=dt*(time_i+1); // for Ey
+        qDebug()<<time;
+        if(time>4.86)
+             disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));
+
         //        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
         //        cout<<abs(ft1[40]);
 
