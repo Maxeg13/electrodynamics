@@ -33,6 +33,9 @@ char *tag="v1"; // used to label output files
 float eslab = 1.; // permittivity of the slab
 float lambda0 = 600; // nm
 float tau = 5; // fs, width of the pulse
+float EzMax=0.05;
+float max1;
+float limit(float& val, float& y);
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
@@ -171,7 +174,7 @@ MainWindow::MainWindow(QWidget *parent) :
     create_etay(Nx,10, etay);
 
     create_etax(Nx,10, etax);
-//    create_slab(Nx, etay);
+    //    create_slab(Nx, etay);
     dcomplex c(1,1);
     cout<<abs(c);
 
@@ -354,25 +357,37 @@ void  MainWindow::paintEvent(QPaintEvent *e)
 
     //    painter->setPen(pen);
     QPen pen;
-    QBrush brush;
+//    QBrush brush;
     QRectF rect;
     QColor color;
-    float max1=getMax(Ez,Nx);
+    float limK=.5;
+    float colorK=255/limK;
+
+    float max2=getMax(Ez,Nx);
+    if(max2>max1)
+        max1=max2;
+
+    color.setGreen(255);
+    float h;
+//    brush.setColor(QColor(255,255,255));
     for (i=0;i<Nx;i++)
         for(j=0;j<Nx;j++)
         {
             //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
             //            brush.setColor(QColor(0,0,fabs(Ez[i][j])*240/(0.00001+fabs(max1))));
-            //            brush.setColor(QColor(0,0,250));
+            //
+
+
+            h=Ez[i][j]/(0.00001+(max1));
             if(Ez[i][j]>0)
             {
-                color.setRed(0);
-                color.setBlue(fabs(Ez[i][j])*250./(0.00001+(max1)));
+                color.setBlue(255);
+                                color.setRed(255-fabs(limit(h,limK))*colorK);
             }
             else
             {
-                color.setBlue(0);
-                color.setRed(fabs(Ez[i][j])*250./(0.00001+(max1)));
+                color.setRed(255);
+                                color.setBlue(255-fabs(limit(h,limK))*colorK);
             }
 
             pen.setColor(color);
@@ -428,19 +443,16 @@ void MainWindow::loop()
         update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi);
         update_Ez(Nx, Ez, Ez2, Ez3, Dz,Dz2,Se, etax, etay);
 
-
-
-
         //        save_mas(Nx, Hx, Bx);
         //        save_mas(Nx, Hy, By);
         //        save_mas(Nx, Ez, Dz);
-
         //        update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         float time=dt*(time_i+1); // for Ey
-        qDebug()<<time;
-        if(time>4.86)
-             disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));
+        //        qDebug()<<time;
+        qDebug()<<Ez[80][80];
+        //        if(time>4.86)
+        //             disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 
         //        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
         //        cout<<abs(ft1[40]);
@@ -476,6 +488,13 @@ float getMax(float **x, int Nx)
             if(max<fabs(x[i][j])) max=fabs(x[i][j]);
 
     return max;
+}
+
+float limit(float& x, float& y)
+{
+    if(x>y) return y;
+    if(x<-y) return -y;
+    return x;
 }
 
 MainWindow::~MainWindow()
