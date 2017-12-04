@@ -3,7 +3,7 @@
 /******************************************************************************/
 extern float dt;
 extern float w0;
-float eta0=.1;
+float eta0=.5;
 
 void create_etax(int Nx, int width, float **eta){
 

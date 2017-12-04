@@ -360,7 +360,7 @@ void  MainWindow::paintEvent(QPaintEvent *e)
 //    QBrush brush;
     QRectF rect;
     QColor color;
-    float limK=.5;
+    float limK=.35;
     float colorK=255/limK;
 
     float max2=getMax(Ez,Nx);
