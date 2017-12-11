@@ -436,11 +436,11 @@ void MainWindow::loop()
         save_mas(Nx, Hy2, Hy);
 
 
-        update_B(Nx, Bx, By, Ez, xi);
+        update_B(Nx, Bx, By, Ez, xi, 23,23);
         update_Hx(Nx, Hx,Hx2,Bx,Bx2,etax,etay);
         update_Hy(Nx, Hy, Hy2,By,By2,etax,etay);
 
-        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi);
+        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi,23,23);
         update_Ez(Nx, Ez, Ez2, Ez3, Dz,Dz2,Se, etax, etay);
 
         //        save_mas(Nx, Hx, Bx);
