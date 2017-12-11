@@ -16,11 +16,11 @@ void update_B(int Nx, float **Bx, float **By,  float **Ez, float xi,
         {
             By[i][j] -=xi*(Ez[i][j]-Ez[i+1][j]);
 
-            if((j>(width-1))&&(j<(Nx-width+1)))
+            if((j>(width-2))&&(j<(Nx-width+1)))
                 if(i==(width-1))
-                    By[i][j] -=xi*pulse( i*dx,  t,  speed,  tau,  w0);//to correct
+                    By[i][j] -=xi*pulse( (i+1)*dx,  t,  speed,  tau,  w0);//to correct
                 else if(i=(Nx-width))
-                    By[i][j] -=xi*pulse( i*dx,  t,  speed,  tau,  w0);//to correct
+                    By[i][j] +=xi*pulse( (i+1)*dx,  t,  speed,  tau,  w0);//to correct
         }
 }
 
@@ -34,16 +34,19 @@ void update_Dz(int Nx, float **Dz,  float **Hx,  float **Hy, float source, float
         for( j=1; j<Nx-2;j++)
         {
             Dz[i][j] +=xi*(Hy[i][j]-Hy[i-1][j]+Hx[i][j]-Hx[i][j+1]);//+source*(((i==(int)(Mx*1.5))&(j==Mx))?1:0);
-            if((j>(width-1))&&(j<(Nx-width+1)))
-                if((i>(width-1))&&(i<(Nx-width+1)))
+            if((j>(width-2))&&(j<(Nx-width+1)))
+                if((i>(width-1))&&(i<(Nx-width+2)))
+                {
                     if(i==width)
-                        Dz[i][j]-=xi*pulse( i*dx,  t,  speed,  tau,  w0);
+                        Dz[i][j]-=xi*pulse( (i-1)*dx,  t,  speed,  tau,  w0);
                     else if(i==(Nx-width+1))
-                        Dz[i][j]+=xi*pulse( i*dx,  t,  speed,  tau,  w0);
-            if(j==(width-1))
-                Dz[i][j] +=xi*pulse( i*dx,  t,  speed,  tau,  w0);
-            else if(j==(Nx-width))
-                Dz[i][j] -=xi*pulse( i*dx,  t,  speed,  tau,  w0);
+                        Dz[i][j]+=xi*pulse( (i-1)*dx,  t,  speed,  tau,  w0);
+
+                    if(j==(width-1))
+                        Dz[i][j] +=xi*pulse( i*dx,  t,  speed,  tau,  w0);
+                    else if(j==(Nx-width))
+                        Dz[i][j] -=xi*pulse( i*dx,  t,  speed,  tau,  w0);
+                }
         }
 
 }
