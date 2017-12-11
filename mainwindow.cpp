@@ -39,7 +39,7 @@ float limit(float& val, float& y);
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 110;
+int Nx = 130;
 
 
 int ix0 = 600;//1600
@@ -171,9 +171,9 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(By,Nx);
     alloc1(By2,Nx);
 
-    create_etay(Nx,10, etay);
+//    create_etay(Nx,10, etay);
 
-    create_etax(Nx,10, etax);
+//    create_etax(Nx,10, etax);
     //    create_slab(Nx, etay);
     dcomplex c(1,1);
     cout<<abs(c);
@@ -450,9 +450,9 @@ void MainWindow::loop()
 
         float time=dt*(time_i+1); // for Ey
         //        qDebug()<<time;
-        qDebug()<<Ez[80][80];
-        //        if(time>4.86)
-        //             disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));
+//        qDebug()<<Ez[80][80];
+//                if(time>4.86)
+//                     disconnect(timer,SIGNAL(timeout()), this, SLOT(loop()));
 
         //        rfourier2(wmin, wmax, Nw, ft1, ft2, Ey[ix0+700], Ey[ix0], dt, time, fourb1, fourb2 );
         //        cout<<abs(ft1[40]);
