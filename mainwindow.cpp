@@ -31,15 +31,16 @@ bool fourb1, fourb2;
 int iii=1;
 char *tag="v1"; // used to label output files
 float eslab = 1.; // permittivity of the slab
-float lambda0 = 600; // nm
-float tau = 5; // fs, width of the pulse
+float lambda0 = 400; // nm
+float tau = 3; // fs, width of the pulse
 float EzMax=0.05;
 float max1;
 float limit(float& val, float& y);
 float getMax(float**, int);
 /*** Computational parameters ***/
 float dx = 20.0; // nm
-int Nx = 130;
+int Nx = 210;
+int Ny=140;
 
 
 int ix0 = 600;//1600
@@ -360,7 +361,7 @@ void  MainWindow::paintEvent(QPaintEvent *e)
 //    QBrush brush;
     QRectF rect;
     QColor color;
-    float limK=.8;
+    float limK=1;
     float colorK=255/limK;
 
     float max2=getMax(Ez,Nx);
@@ -370,16 +371,16 @@ void  MainWindow::paintEvent(QPaintEvent *e)
     color.setGreen(255);
     float h;
 //    brush.setColor(QColor(255,255,255));
-    for (i=0;i<Nx;i++)
-        for(j=0;j<Nx;j++)
+    for (i=0;i<Nx/2;i++)
+        for(j=0;j<Nx/2;j++)
         {
             //            painter->setBrush(QBrush(QColor(0,0,Ez[i][j]*100)));
             //            brush.setColor(QColor(0,0,fabs(Ez[i][j])*240/(0.00001+fabs(max1))));
             //
 
 
-            h=Ez[i][j]/(0.00001+(max1));
-            if(Ez[i][j]>0)
+            h=Ez[i*2][j*2]/(0.00001+(max1));
+            if(h>0)
             {
                 color.setBlue(255);
                                 color.setRed(255-fabs(limit(h,limK))*colorK);
