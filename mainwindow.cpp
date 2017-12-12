@@ -171,9 +171,9 @@ MainWindow::MainWindow(QWidget *parent) :
     alloc1(By,Nx);
     alloc1(By2,Nx);
 
-//    create_etay(Nx,10, etay);
+    create_etay(Nx,10, etay);
 
-//    create_etax(Nx,10, etax);
+    create_etax(Nx,10, etax);
     //    create_slab(Nx, etay);
     dcomplex c(1,1);
     cout<<abs(c);
@@ -360,7 +360,7 @@ void  MainWindow::paintEvent(QPaintEvent *e)
 //    QBrush brush;
     QRectF rect;
     QColor color;
-    float limK=.35;
+    float limK=.8;
     float colorK=255/limK;
 
     float max2=getMax(Ez,Nx);
@@ -436,11 +436,12 @@ void MainWindow::loop()
         save_mas(Nx, Hy2, Hy);
 
 
-        update_B(Nx, Bx, By, Ez, xi, 23,23);
+        int bound=40;
+        update_B(Nx, Bx, By, Ez, xi,  time_i,  speed,  tau,  w0,  bound);
         update_Hx(Nx, Hx,Hx2,Bx,Bx2,etax,etay);
         update_Hy(Nx, Hy, Hy2,By,By2,etax,etay);
 
-        update_Dz(Nx, Dz, Hx, Hy, sin(time_i/4.), xi,23,23);
+        update_Dz(Nx, Dz, Hx, Hy, xi,time_i,  speed,  tau,  w0,  bound);
         update_Ez(Nx, Ez, Ez2, Ez3, Dz,Dz2,Se, etax, etay);
 
         //        save_mas(Nx, Hx, Bx);
