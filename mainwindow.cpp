@@ -364,7 +364,10 @@ void  MainWindow::paintEvent(QPaintEvent *e)
     float limK=1;
     float colorK=255/limK;
 
-    float max2=getMax(Ez,Nx);
+//    float max2=getMax(Ez,Nx);
+    float max2=1;
+    qDebug()<<max2;
+
     if(max2>max1)
         max1=max2;
 
@@ -437,7 +440,7 @@ void MainWindow::loop()
         save_mas(Nx, Hy2, Hy);
 
 
-        int bound=40;
+        int bound=18;
         update_B(Nx, Bx, By, Ez, xi,  time_i,  speed,  tau,  w0,  bound);
         update_Hx(Nx, Hx,Hx2,Bx,Bx2,etax,etay);
         update_Hy(Nx, Hy, Hy2,By,By2,etax,etay);

@@ -2,7 +2,7 @@
 #include "pulse.h"
 extern float dx;
 extern float dt;
-int time_shift=-500;
+int time_shift=-300;
 void update_B(int Nx, float **Bx, float **By,  float **Ez, float xi,
                float time_i, float speed, float tau, float w0, int bound){
     static int i;
