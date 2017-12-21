@@ -45,12 +45,12 @@ int Nslab = 200; // width of the slab
 int width = 100;
 
 int si1 = 1200; // start of the slab
-int si2 = si1+10; // end of the slab
+int si2 = si1+97; // end of the slab
 int i1=si1-100;
-int i2=si2+300;
+int i2=Nx-1;
 
 int fi1 = 5000; //
-int fi2 = 2500; //
+int fi2 = si1-200; //
 
 double xi = 1;
 int No = 200; // defines the output rate
@@ -108,7 +108,7 @@ void MainWindow::changeDist()
         Hz[i]=0;
         //        eps[i]=0;
     }
-    create_slab(Nx, eps, eta, Nx-slider_width->value(), si2, eslab);
+    create_slab(Nx, eps, eta, Nx/2, Nx/2+slider_width->value(), eslab);
     //    create_initial_dist(Nx,Dy,Hz,dx,dt,speed,ix0,tau,w0,1);
     update_Ey(Nx, Ey, Dy,Dy2, eps,eta);
 
@@ -218,9 +218,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
         dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
 
-        dcomplex e2=exp(dcomplex(0,1)*(2.*dataTR[0][i]*150)*2./(speed));
-//        dataTR[1][i]=abs(r1*(e2-(double)1.)/(e2-r1*r1));
-        dataTR[1][i]=abs(8/9.*((double)1/(e2-r1*r1)));
+        dcomplex e2=exp(dcomplex(0,1)*(2.*dataTR[0][i]*(si2-si1)*dx)/(speed/2.));
+        dataTR[1][i]=abs(r1*(e2-(double)1.)/(e2-r1*r1));
+//        dataTR[1][i]=abs(8/9.*((double)1/(e2-r1*r1)));
 
     }
 
@@ -264,13 +264,16 @@ MainWindow::MainWindow(QWidget *parent) :
     grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
     grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
-
+    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse,
+                                           QBrush(QColor(0,0,0)), QPen(QColor(0,0,0,0)  ), QSize( 5, 5) );
+//        rastrCurve.setSymbol(symbol);
     elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
     magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
     epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
     fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
     //    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
+    epsCurve->setSymbol(symbol);
     //     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
 
     //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
@@ -401,7 +404,7 @@ void MainWindow::loop()
         update_Ey(Nx, Ey, Dy, Dy2, eps, eta);
 
         double time=dt*(time_i+1); // for Ey
-        rfourier2(wmin, wmax, Nw, ft1, ft2, EL, Ey[i2+10], dt, time, fourb1, fourb2 );
+        rfourier2(wmin, wmax, Nw, ft1, ft2, EL, Ey[fi2], dt, time, fourb1, fourb2 );
         //        cout<<abs(ft1[40]);
 
         for(int i=0;i<Nx;i++)
@@ -412,7 +415,7 @@ void MainWindow::loop()
 
         for(int i=0;i<Nw;i++)
         {
-            dataFourR[1][i]=abs(ft2[i]/(0.0001+ft1[i]));
+            dataFourR[1][i]=abs(ft2[i]/(0.0000001+ft1[i]));
 
             //        dataFourI[1][i]=abs(ft1[i]);
             //        dataFourR[1][i]=abs(ft2[i]);

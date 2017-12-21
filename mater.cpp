@@ -44,8 +44,8 @@ void update_Hz(int Nx, double *Hz,
     for(int i=0; i<Nx; i++)
     {
         double k=1;
-//        eta[i]*=k;
-        Hz[i]=((mu[i]-k*eta[i])/(mu[i]+k*eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+k*eta[i]);
-//        eta[i]/=k;
+
+//        Hz[i]=((mu[i]-k*eta[i])/(mu[i]+k*eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(mu[i]+k*eta[i]);
+Hz[i]=((1-k*eta[i])/(1+k*eta[i]))*Hz[i]+(Bz[i]-Bz2[i])/(1+k*eta[i]);
     }
 }
