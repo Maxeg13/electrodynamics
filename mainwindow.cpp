@@ -30,7 +30,7 @@ using namespace std;
 bool fourb1, fourb2;
 int iii=1;
 char *tag="v1"; // used to label output files
-double eslab = 4.; // permittivity of the slab
+double eslab = 1.; // permittivity of the slab
 double lambda0 = 600; // nm
 double tau = 5; // fs, width of the pulse
 double getMax(double*, int);
@@ -45,12 +45,12 @@ int Nslab = 200; // width of the slab
 int width = 100;
 
 int si1 = 1200; // start of the slab
-int si2 = si1+97; // end of the slab
+int si2 = si1+101; // end of the slab
 int i1=si1-100;
 int i2=Nx-1;
 
 int fi1 = 5000; //
-int fi2 = si1-200; //
+int fi2 = si2+10; //
 
 double xi = 1;
 int No = 200; // defines the output rate
@@ -115,7 +115,7 @@ void MainWindow::changeDist()
     for(int i=0;i<Nx;i++)
     {
         dataEps[0][i]=dx*(i);
-        dataEps[1][i]=abs(eps[i])*1;
+        dataEps[1][i]=abs(eps[i])*.25;
     }
     epsCurve->signalDrawing();
 }
@@ -157,6 +157,7 @@ MainWindow::MainWindow(QWidget *parent) :
     slider_width->setRange(1,500);
     slider_width->setValue(100);
     slider_width->setOrientation(Qt::Horizontal);
+
     //    changeDist();
     connect(slider_width,SIGNAL(sliderReleased()),this,SLOT(changeDist()));
 
@@ -219,8 +220,8 @@ MainWindow::MainWindow(QWidget *parent) :
         dataTR[0][i]=wmin+i*(wmax-wmin)/Nw;
 
         dcomplex e2=exp(dcomplex(0,1)*(2.*dataTR[0][i]*(si2-si1)*dx)/(speed/2.));
-        dataTR[1][i]=abs(r1*(e2-(double)1.)/(e2-r1*r1));
-//        dataTR[1][i]=abs(8/9.*((double)1/(e2-r1*r1)));
+//        dataTR[1][i]=abs(r1*(e2-(double)1.)/(e2-r1*r1));
+        dataTR[1][i]=abs(8/9.*((double)1/(e2-r1*r1)));
 
     }
 
@@ -241,39 +242,53 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i=0;i<Nx;i++)
     {
         dataEps[0][i]=dx*(i);
-        dataEps[1][i]=abs(eps[i])*1;
+        dataEps[1][i]=abs(eps[i])*.25;
     }
 
     float yBond=1.5;
 
     d_plot[0] = new QwtPlot(this);
-    drawingInit(d_plot[0],QString("ED show"));
+    d_plot[0]->setStyleSheet("background-color:white; color:black; border-radius: 0px; font: 8pt \"Deja Vu\";");
+    drawingInit(d_plot[0],QString(""));
     d_plot[0]->setAxisScale(QwtPlot::yLeft,-yBond,yBond);
     d_plot[0]->setAxisScale(QwtPlot::xBottom,0,Nx*dx);
-    d_plot[0]->setAxisTitle(QwtPlot::yLeft, "Ey/E, Hz/H");
-    d_plot[0]->setAxisTitle(QwtPlot::xBottom, "dist, nm");
+    QwtText qwtt=QwtText("Ey/E");
+    qwtt.setFont(QFont("Times",12 ));
+    d_plot[0]->setAxisTitle(QwtPlot::yLeft, qwtt);
+    qwtt.setText("dist, nm");
+    d_plot[0]->setAxisTitle(QwtPlot::xBottom, qwtt);
 
     d_plot[1] = new QwtPlot(this);
-    drawingInit(d_plot[1],QString("Fourier koefs"));
-    d_plot[1]->setAxisScale(QwtPlot::yLeft,0,1);
+
+
+    drawingInit(d_plot[1],QString("Fourier transform"));
+    d_plot[1]->setStyleSheet("background-color:white; color:black; border-radius: 0px; font: 8pt \"Deja Vu\";");
+    d_plot[1]->setAxisScale(QwtPlot::yLeft,0.7,1.1);
     d_plot[1]->setAxisScale(QwtPlot::xBottom,wmin,wmax);
-    d_plot[1]->setAxisTitle(QwtPlot::yLeft, "amp");
-    d_plot[1]->setAxisTitle(QwtPlot::xBottom, "cyrcle freq, rads/fs");
+    d_plot[1]->setFont(QFont("Helvetica",2));
+     qwtt.setText("amp");
+//    qwtt.setFont(QFont("Times",10 ));
+    d_plot[1]->setAxisTitle(QwtPlot::yLeft, qwtt);
+    qwtt.setText("w, rads/fs");
+    d_plot[1]->setAxisTitle(QwtPlot::xBottom, qwtt);
     QwtPlotGrid *grid = new QwtPlotGrid(); //
 
     grid->setMajorPen(QPen( Qt::gray, 2 )); // цвет линий и толщина
     grid->attach( d_plot[1] ); // добавить сетку к полю графика
 
-    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse,
-                                           QBrush(QColor(0,0,0)), QPen(QColor(0,0,0,0)  ), QSize( 5, 5) );
+//    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse,
+//                                           QBrush(QColor(0,0,0)), QPen(QColor(0,0,0,0)  ), QSize( 5, 5) );
 //        rastrCurve.setSymbol(symbol);
     elCurve[0]=new myCurve( dataE,d_plot[0],"ED",Qt::black,iii);
-    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
+//    magCurve[0]=new myCurve(dataH,d_plot[0],"ED",Qt::green,iii);
     epsCurve=new myCurve(dataEps,d_plot[0],"ED",Qt::yellow,iii);
     fourRCurve=new myCurve(dataFourR,d_plot[1],"ED",Qt::black,iii);
+        QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse,
+                                               QBrush(QColor(0,0,0)), QPen(QColor(0,0,0,0)  ), QSize( 5, 5) );
+        fourRCurve->setSymbol(symbol);
     //    fourICurve=new myCurve(dataFourI,d_plot[1],"ED",Qt::black,iii);
     fourThCurve=new myCurve(dataTR,d_plot[1],"ED",Qt::green,iii);
-    epsCurve->setSymbol(symbol);
+//    epsCurve->setSymbol(symbol);
     //     etaConstCurve[0]=new myCurve(dataR,d_plot[1],"ED",QColor(0,0,0,0),Qt::black,iii);
 
     //    elCurve[1]=new myCurve(Nx_part, dataFourR,d_plot[1],"ED",Qt::black,Qt::black,i1);
@@ -293,7 +308,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->resize(QSize(600,450));
 
     elCurve[0]->signalDrawing();
-    magCurve[0]->signalDrawing();
+//    magCurve[0]->signalDrawing();
     epsCurve->signalDrawing();
     fourThCurve->signalDrawing();
 
@@ -334,7 +349,7 @@ void MainWindow::drawingInit(QwtPlot* d_plot, QString title)
     // линий в месте его отображения
 
     QwtText* qwtt=new QwtText(title);
-    qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
+    qwtt->setFont(QFont("Times",12 ));
 
     //    d_plot->setAxisScale(1,-500,500,200);
     d_plot->setTitle( *qwtt ); // заголовок
@@ -424,7 +439,7 @@ void MainWindow::loop()
 
     elCurve[0]->signalDrawing();
     //    elCurve[1]->signalDrawing();
-    magCurve[0]->signalDrawing();
+//    magCurve[0]->signalDrawing();
     //    etaConstCurve[0]->signalDrawing();
 
 
@@ -432,11 +447,11 @@ void MainWindow::loop()
     //    fourICurve->signalDrawing();
     fourThCurve->signalDrawing();
 
-    QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
-    qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
+//    QwtText* qwtt=new QwtText(QString("time=")+QString::number(time_i*dt)+QString(" fs"));
+//    qwtt->setFont(QFont("Helvetica", 11,QFont::Normal));
 
     //    d_plot->setAxisScale(1,-500,500,200);
-    d_plot[0]->setTitle( *qwtt ); // заголовок
+//    d_plot[0]->setTitle( *qwtt ); // заголовок
 }
 
 double getMax(double* x, int Nx)
